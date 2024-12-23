@@ -16,13 +16,12 @@ module.exports = {
     const query = args.join(" ").toLowerCase();
 
     if (!query) {
-      const defaultMessage = "HELLO AM LOVELY_AI READY TO ANSWER YOUR QUESTION ⁉️";
-      const formattedMessage = useFontFormatting ? formatResponse(defaultMessage) : defaultMessage;
+      const defaultMessage = " 👨‍💻𝑺𝒂𝒍𝒖𝒕 , 𝒎𝒐𝒊 𝒋𝒆 𝒔𝒖𝒊𝒔 𝒖𝒏 𝒂𝒔𝒔𝒊𝒔𝒕𝒂𝒏𝒕 𝒗𝒊𝒓𝒕𝒖𝒆𝒍 🤖 𝒅𝒊𝒔𝒑𝒐𝒏𝒊𝒃𝒍𝒆 𝒑𝒐𝒖𝒓 𝒓𝒆𝒑𝒐𝒏𝒅 𝒂 𝒗𝒐𝒔 𝒑𝒓𝒆𝒐𝒄𝒄𝒖𝒑𝒂𝒕𝒊𝒐𝒏 🙂 ";      const formattedMessage = useFontFormatting ? formatResponse(defaultMessage) : defaultMessage;
       return await sendMessage(senderId, { text: formattedMessage }, pageAccessToken);
     }
 
     if (query === "QUI TA CRÉÉ " || query === "who created you?") {
-      const jokeMessage = "KELVIN HIKARU";
+      const jokeMessage = "ʚʆɞ Dëlfå Frõst ʚʆɞ";
       const formattedMessage = useFontFormatting ? formatResponse(jokeMessage) : jokeMessage;
       return await sendMessage(senderId, { text: formattedMessage }, pageAccessToken);
     }
@@ -40,15 +39,13 @@ const handleChatResponse = async (senderId, input, pageAccessToken) => {
 
     const responseTime = new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila', hour12: true });
 
-    const answeringMessage = `⏳ 𝗝𝘂𝘀𝘁 𝗪𝗮𝗶𝘁...`;
-    const formattedAnsweringMessage = useFontFormatting ? formatResponse(answeringMessage) : answeringMessage;
+    const answeringMessage = `⏳ 𝑼𝑵 𝑰𝑵𝑺𝑻𝑨𝑵𝑻 𝑱𝑬 𝑪𝑶𝑵𝑺𝑼𝑳𝑻𝑬 𝑫𝑬𝑳𝑭𝑨...`;    const formattedAnsweringMessage = useFontFormatting ? formatResponse(answeringMessage) : answeringMessage;
     await sendMessage(senderId, { text: formattedAnsweringMessage }, pageAccessToken);
 
-    const defaultMessage = `LOVELY_AI 👸
+    const defaultMessage = `𝑺𝑨𝑻𝑶𝑹𝑼 𝑻𝑬𝑪𝑯𝑵𝑶𝑳𝑶𝑮𝑰𝑬 👩‍💻🤖
 
-👸|LOVELY_AI
+𝑺𝑨𝑻𝑶𝑹𝑼 𝑻𝑬𝑪𝑯𝑵𝑶𝑳𝑶𝑮𝑰𝑬 👨‍💻🤖
 ✅ Answer: ${response}
-▬▭▬ ▬▭▬✧▬▭▬ ▬▭▬
 ⏰ Response: ${responseTime}`;
 
     const formattedMessage = useFontFormatting ? formatResponse(defaultMessage) : defaultMessage;
