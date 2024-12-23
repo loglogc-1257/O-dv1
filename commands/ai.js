@@ -16,7 +16,7 @@ module.exports = {
     const query = args.join(" ").toLowerCase();
 
     if (!query) {
-      const defaultMessage = " 👨‍💻𝑺𝒂𝒍𝒖𝒕 , 𝒎𝒐𝒊 𝒋𝒆 𝒔𝒖𝒊𝒔 𝒖𝒏 𝒂𝒔𝒔𝒊𝒔𝒕𝒂𝒏𝒕 𝒗𝒊𝒓𝒕𝒖𝒆𝒍 🤖 𝒅𝒊𝒔𝒑𝒐𝒏𝒊𝒃𝒍𝒆 𝒑𝒐𝒖𝒓 𝒓𝒆𝒑𝒐𝒏𝒅 𝒂 𝒗𝒐𝒔 𝒑𝒓𝒆𝒐𝒄𝒄𝒖𝒑𝒂𝒕𝒊𝒐𝒏 🙂 ";      const formattedMessage = useFontFormatting ? formatResponse(defaultMessage) : defaultMessage;
+      const defaultMessage = " 👨‍💻𝑺𝒂𝒍𝒖𝒕 , 𝒎𝒐𝒊 𝒋𝒆 𝒔𝒖𝒊𝒔 𝒖𝒏 𝒂𝒔𝒔𝒊𝒔𝒕𝒂𝒏𝒕 𝒗𝒊𝒓𝒕𝒖𝒆𝒍 🤖 𝒅𝒊𝒔𝒑𝒐𝒏𝒊𝒃𝒍𝒆 𝒑𝒐𝒖𝒓 𝒓𝒆𝒑𝒐𝒏𝒅 𝒂 𝒗𝒐𝒔 𝒒𝒖𝒆𝒔𝒕𝒊𝒐𝒏𝒔 🙂 ";      const formattedMessage = useFontFormatting ? formatResponse(defaultMessage) : defaultMessage;
       return await sendMessage(senderId, { text: formattedMessage }, pageAccessToken);
     }
 
@@ -39,12 +39,11 @@ const handleChatResponse = async (senderId, input, pageAccessToken) => {
 
     const responseTime = new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila', hour12: true });
 
-    const answeringMessage = `⏳ 𝑼𝑵 𝑰𝑵𝑺𝑻𝑨𝑵𝑻 𝑱𝑬 𝑪𝑶𝑵𝑺𝑼𝑳𝑻𝑬 𝑫𝑬𝑳𝑭𝑨...`;    const formattedAnsweringMessage = useFontFormatting ? formatResponse(answeringMessage) : answeringMessage;
+    const answeringMessage = `⏳ 𝑼𝒏 𝒊𝒏𝒔𝒕𝒂𝒏𝒕 𝒋𝒆 𝒄𝒐𝒏𝒔𝒖𝒍𝒕𝒆 𝑫𝒆𝒍𝒇𝒂 ...`;    const formattedAnsweringMessage = useFontFormatting ? formatResponse(answeringMessage) : answeringMessage;
     await sendMessage(senderId, { text: formattedAnsweringMessage }, pageAccessToken);
 
     const defaultMessage = `𝑺𝑨𝑻𝑶𝑹𝑼 𝑻𝑬𝑪𝑯𝑵𝑶𝑳𝑶𝑮𝑰𝑬 👩‍💻🤖
 
-𝑺𝑨𝑻𝑶𝑹𝑼 𝑻𝑬𝑪𝑯𝑵𝑶𝑳𝑶𝑮𝑰𝑬 👨‍💻🤖
 ✅ Answer: ${response}
 ⏰ Response: ${responseTime}`;
 
