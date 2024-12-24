@@ -60,12 +60,12 @@ module.exports = {
 
     const helpMessage = `
 ━━━━━━━━━━━━━━
-🌟 Available Educational Commands:
+😁 Available Educational Commands:
 ╭─╼━━━━━━━━╾─╮
 ${educationalCommandsList || 'No educational commands available.'}
 ╰─━━━━━━━━━╾─╯
 
-🌟 Available Other Commands:
+👉 Available Other Commands:
 ╭─╼━━━━━━━━╾─╮
 ${otherCommandsList || 'No other commands available.'}
 ╰─━━━━━━━━━╾─╯
