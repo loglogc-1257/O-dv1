@@ -16,7 +16,7 @@ module.exports = {
     const query = args.join(" ").toLowerCase();
 
     if (!query) {
-      const defaultMessage = " 𝐕𝐞𝐮𝐢𝐥𝐥𝐞𝐳 𝐩𝐨𝐬𝐞𝐫 𝐥𝐚 𝐪𝐮𝐞𝐬𝐭𝐢𝐨𝐧 𝐚 𝐯𝐨𝐭𝐫𝐞 𝐜𝐨𝐧𝐯𝐞𝐧𝐚𝐧𝐜𝐞 𝐞𝐭 𝐣𝐞 𝐦'𝐞𝐟𝐟𝐨𝐫𝐜𝐞𝐫𝐚𝐢 𝐝𝐞 𝐯𝐨𝐮𝐬 𝐟𝐨𝐮𝐫𝐧𝐢𝐫 𝐮𝐧𝐞 𝐫𝐞𝐩𝐨𝐧𝐬𝐞 𝐞𝐟𝐟𝐢𝐜𝐚𝐜𝐞 🙂🤓. 𝐕𝐨𝐭𝐫𝐞 𝐬𝐚𝐭𝐢𝐬𝐟𝐚𝐜𝐭𝐢𝐨𝐧 𝐞𝐬𝐭 𝐦𝐚  𝐩𝐫𝐢𝐨𝐫𝐢𝐭é 𝐚𝐛𝐬𝐨𝐥𝐮𝐞 🤖. (𝐄𝐃𝐈𝐓 𝐛𝐲 𝐃𝐞𝐥𝐟𝐚 𝐟𝐫𝐨𝐬𝐭 ";      const formattedMessage = useFontFormatting ? formatResponse(defaultMessage) : defaultMessage;
+      const defaultMessage = " 𝗩𝗲𝘂𝗶𝗹𝗹𝗲𝘇 𝗽𝗼𝘀𝗲𝗿 𝗹𝗮 𝗾𝘂𝗲𝘀𝘁𝗶𝗼𝗻 𝗮 𝘃𝗼𝘁𝗿𝗲 𝗰𝗼𝗻𝘃𝗲𝗻𝗮𝗻𝗰𝗲 𝗲𝘁 𝗷𝗲 𝗺'𝗲𝗳𝗳𝗼𝗿𝗰𝗲𝗿𝗮𝗶 𝗱𝗲 𝘃𝗼𝘂𝘀 𝗳𝗼𝘂𝗿𝗻𝗶𝗿 𝘂𝗻𝗲 𝗿𝗲𝗽𝗼𝗻𝘀𝗲 𝗲𝗳𝗳𝗶𝗰𝗮𝗰𝗲 🙂🤓. 𝗩𝗼𝘁𝗿𝗲 𝘀𝗮𝘁𝗶𝘀𝗳𝗮𝗰𝘁𝗶𝗼𝗻 𝗲𝘀𝘁 𝗺𝗮 𝗽𝗿𝗶𝗼𝗿𝗶𝘁é 𝗮𝗯𝘀𝗼𝗹𝘂𝗲 🤖. (𝐄𝐃𝐈𝐓 𝐛𝐲 𝗗𝗲𝗹𝗳𝗮 𝗳𝗿𝗼𝘀𝘁) ";      const formattedMessage = useFontFormatting ? formatResponse(defaultMessage) : defaultMessage;
       return await sendMessage(senderId, { text: formattedMessage }, pageAccessToken);
     }
 
@@ -39,12 +39,12 @@ const handleChatResponse = async (senderId, input, pageAccessToken) => {
 
     const responseTime = new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila', hour12: true });
 
-    const answeringMessage = `⏳ 𝗔𝗵 𝘃𝗲𝘂𝗶𝗹𝗹𝗲𝘇 𝗽𝗮𝘁𝗶𝗲𝗻𝘁𝗲𝗿 𝗷𝗲 𝗰𝗼𝗻𝘀𝘂𝗹𝘁𝗲 𝐃𝐞𝐥𝐟𝐚.....`;    const formattedAnsweringMessage = useFontFormatting ? formatResponse(answeringMessage) : answeringMessage;
+    const answeringMessage = `⏳ 𝗔𝗵 𝘃𝗲𝘂𝗶𝗹𝗹𝗲𝘇 𝗽𝗮𝘁𝗶𝗲𝗻𝘁𝗲𝗿 𝗷𝗲 𝗰𝗼𝗻𝘀𝘂𝗹𝘁𝗲 𝗗𝗲𝗹𝗳𝗮 .....`;    const formattedAnsweringMessage = useFontFormatting ? formatResponse(answeringMessage) : answeringMessage;
     await sendMessage(senderId, { text: formattedAnsweringMessage }, pageAccessToken);
 
-    const defaultMessage = `𝐃𝐞𝐥𝐟𝐚 𝐛𝐨𝐭 👩‍💻
-
-𝐒𝐚𝐭𝐨𝐫𝐮 𝐭𝐞𝐜𝐡𝐧𝐨𝐥𝐨𝐠𝐢𝐞 👨‍💻🤖
+    const defaultMessage = `𝗗𝗲𝘃𝗲𝗹𝗼𝗽𝗽𝗲𝘂𝗿 👨‍💻 : ʚʆɞ Dëlfå Frõst ʚʆɞ
+    𝗟𝗶𝗲𝗻:https://www.facebook.com/profile.php?id=61553392844761
+             𝗦𝗮𝘁𝗼𝗿𝘂 𝘁𝗲𝗰𝗵𝗻𝗼𝗹𝗼𝗴𝗶𝗲 𝗯𝗼𝘁 🤖
 ✅ Answer: ${response}
 ⏰ Response: ${responseTime}`;
 
