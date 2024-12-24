@@ -16,7 +16,7 @@ module.exports = {
     const query = args.join(" ").toLowerCase();
 
     if (!query) {
-      const defaultMessage = " 👨‍💻𝑺𝒂𝒍𝒖𝒕 , 𝒎𝒐𝒊 𝒋𝒆 𝒔𝒖𝒊𝒔 𝒖𝒏 𝒂𝒔𝒔𝒊𝒔𝒕𝒂𝒏𝒕 𝒗𝒊𝒓𝒕𝒖𝒆𝒍 🤖 𝒅𝒊𝒔𝒑𝒐𝒏𝒊𝒃𝒍𝒆 𝒑𝒐𝒖𝒓 𝒓𝒆𝒑𝒐𝒏𝒅 𝒂 𝒗𝒐𝒔 𝒒𝒖𝒆𝒔𝒕𝒊𝒐𝒏𝒔 🙂 ";      const formattedMessage = useFontFormatting ? formatResponse(defaultMessage) : defaultMessage;
+      const defaultMessage = " 𝐕𝐞𝐮𝐢𝐥𝐥𝐞𝐳 𝐩𝐨𝐬𝐞𝐫 𝐥𝐚 𝐪𝐮𝐞𝐬𝐭𝐢𝐨𝐧 𝐚 𝐯𝐨𝐭𝐫𝐞 𝐜𝐨𝐧𝐯𝐞𝐧𝐚𝐧𝐜𝐞 𝐞𝐭 𝐣𝐞 𝐦'𝐞𝐟𝐟𝐨𝐫𝐜𝐞𝐫𝐚𝐢 𝐝𝐞 𝐯𝐨𝐮𝐬 𝐟𝐨𝐮𝐫𝐧𝐢𝐫 𝐮𝐧𝐞 𝐫𝐞𝐩𝐨𝐧𝐬𝐞 𝐞𝐟𝐟𝐢𝐜𝐚𝐜𝐞 🙂🤓. 𝐕𝐨𝐭𝐫𝐞 𝐬𝐚𝐭𝐢𝐬𝐟𝐚𝐜𝐭𝐢𝐨𝐧 𝐞𝐬𝐭 𝐦𝐚  𝐩𝐫𝐢𝐨𝐫𝐢𝐭é 𝐚𝐛𝐬𝐨𝐥𝐮𝐞 🤖. (𝐄𝐃𝐈𝐓 𝐛𝐲 𝐃𝐞𝐥𝐟𝐚 𝐟𝐫𝐨𝐬𝐭 ";      const formattedMessage = useFontFormatting ? formatResponse(defaultMessage) : defaultMessage;
       return await sendMessage(senderId, { text: formattedMessage }, pageAccessToken);
     }
 
@@ -39,11 +39,12 @@ const handleChatResponse = async (senderId, input, pageAccessToken) => {
 
     const responseTime = new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila', hour12: true });
 
-    const answeringMessage = `⏳ 𝑼𝒏 𝒊𝒏𝒔𝒕𝒂𝒏𝒕 𝒋𝒆 𝒄𝒐𝒏𝒔𝒖𝒍𝒕𝒆 𝑫𝒆𝒍𝒇𝒂 ...`;    const formattedAnsweringMessage = useFontFormatting ? formatResponse(answeringMessage) : answeringMessage;
+    const answeringMessage = `⏳ 𝗔𝗵 𝘃𝗲𝘂𝗶𝗹𝗹𝗲𝘇 𝗽𝗮𝘁𝗶𝗲𝗻𝘁𝗲𝗿 𝗷𝗲 𝗰𝗼𝗻𝘀𝘂𝗹𝘁𝗲 𝐃𝐞𝐥𝐟𝐚.....`;    const formattedAnsweringMessage = useFontFormatting ? formatResponse(answeringMessage) : answeringMessage;
     await sendMessage(senderId, { text: formattedAnsweringMessage }, pageAccessToken);
 
-    const defaultMessage = `𝑺𝑨𝑻𝑶𝑹𝑼 𝑻𝑬𝑪𝑯𝑵𝑶𝑳𝑶𝑮𝑰𝑬 👩‍💻🤖
+    const defaultMessage = `𝐃𝐞𝐥𝐟𝐚 𝐛𝐨𝐭 👩‍💻
 
+𝐒𝐚𝐭𝐨𝐫𝐮 𝐭𝐞𝐜𝐡𝐧𝐨𝐥𝐨𝐠𝐢𝐞 👨‍💻🤖
 ✅ Answer: ${response}
 ⏰ Response: ${responseTime}`;
 
@@ -93,4 +94,4 @@ function formatResponse(responseText) {
   };
 
   return responseText.split('').map(char => fontMap[char] || char).join('');
-  }
+                                          }
