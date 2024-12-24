@@ -43,9 +43,8 @@ const handleChatResponse = async (senderId, input, pageAccessToken) => {
     await sendMessage(senderId, { text: formattedAnsweringMessage }, pageAccessToken);
 
     const defaultMessage = `𝗗𝗲𝘃𝗲𝗹𝗼𝗽𝗽𝗲𝘂𝗿 👨‍💻 : ʚʆɞ Dëlfå Frõst ʚʆɞ
-𝗟𝗶𝗲𝗻: https://www.facebook.com/profile.php?id=61553392844761
     
-         𝗦𝗮𝘁𝗼𝗿𝘂 𝘁𝗲𝗰𝗵𝗻𝗼𝗹𝗼𝗴𝗶𝗲 𝗯𝗼𝘁 🤖
+  𝗦𝗮𝘁𝗼𝗿𝘂 𝘁𝗲𝗰𝗵𝗻𝗼𝗹𝗼𝗴𝗶𝗲 𝗯𝗼𝘁 🤖
 ✅ Answer: ${response}
 ⏰ Response: ${responseTime}`;
 
