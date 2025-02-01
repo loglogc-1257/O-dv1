@@ -2,7 +2,7 @@ const axios = require('axios');
 const { sendMessage } = require('../handles/sendMessage');
 const fs = require('fs');
 
-// Lecture sécurisée du token
+// Lecture sécurisée du token PageBot
 let token;
 try {
     token = fs.readFileSync('token.txt', 'utf8').trim();
@@ -16,21 +16,21 @@ const useFontFormatting = true;
 
 module.exports = {
     name: 'ai',
-    description: 'Interact with Free GPT - OpenAI.',
-    author: 'Arn', // API by Kenlie Navacilla Jugarap
+    description: 'Répondeur automatique utilisant GPT-4o.',
+    author: 'PageBot Developer',
 
     async execute(senderId, args) {
         const pageAccessToken = token;
         const query = args.join(" ").trim();
 
         if (!query) {
-            const defaultMessage = "Veuillez poser une question et je ferai de mon mieux pour vous répondre efficacement 🙂🤓.";
+            const defaultMessage = "🔹 Veuillez poser votre question et j'y répondrai avec plaisir ! 🤖";
             const formattedMessage = useFontFormatting ? formatResponse(defaultMessage) : defaultMessage;
             return await sendMessage(senderId, { text: formattedMessage }, pageAccessToken);
         }
 
         if (query.toLowerCase() === "qui t'a créé?" || query.toLowerCase() === "who created you?") {
-            const jokeMessage = "ʚʆɞ Dëlfå Frõst ʚʆɞ";
+            const jokeMessage = "🤖 J'ai été conçu par l'équipe PageBot !";
             const formattedMessage = useFontFormatting ? formatResponse(jokeMessage) : jokeMessage;
             return await sendMessage(senderId, { text: formattedMessage }, pageAccessToken);
         }
@@ -43,34 +43,30 @@ const handleChatResponse = async (senderId, input, pageAccessToken) => {
     const apiUrl = "https://kaiz-apis.gleeze.com/api/gpt-4o";
 
     try {
-        const answeringMessage = "⏳ Veuillez patienter, je consulte Delfa ...";
-        const formattedAnsweringMessage = useFontFormatting ? formatResponse(answeringMessage) : answeringMessage;
-        await sendMessage(senderId, { text: formattedAnsweringMessage }, pageAccessToken);
+        const waitingMessage = "⏳ Un instant, je réfléchis à votre question...";
+        const formattedWaitingMessage = useFontFormatting ? formatResponse(waitingMessage) : waitingMessage;
+        await sendMessage(senderId, { text: formattedWaitingMessage }, pageAccessToken);
 
-        // Requête à l'API
-        const aidata = await axios.get(apiUrl, { params: { q: input, uid: senderId } });
+        // Requête API
+        const response = await axios.get(apiUrl, { params: { q: input, uid: senderId } });
 
-        // Vérification de la validité de la réponse API
-        if (!aidata.data || !aidata.data.response) {
+        if (!response.data || !response.data.response) {
             throw new Error("Réponse API invalide.");
         }
 
-        const response = aidata.data.response;
+        const answer = response.data.response;
         const responseTime = new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris', hour12: true });
 
-        const finalMessage = `👨‍💻 Développeur : ʚʆɞ Dëlfå Frõst ʚʆɞ
-    
-🤖 Satoru Technologie Bot  
-✅ Réponse : ${response}  
-⏰ Heure : ${responseTime}`;
+        const finalMessage = `🤖 Réponse : ${answer}  
+🕒 Heure : ${responseTime}`;
 
         const formattedMessage = useFontFormatting ? formatResponse(finalMessage) : finalMessage;
 
         await sendConcatenatedMessage(senderId, formattedMessage, pageAccessToken);
     } catch (error) {
-        console.error('Erreur lors de la requête à l’API GPT-4o:', error.message);
+        console.error("Erreur GPT-4o :", error.message);
 
-        const errorMessage = "❌ Une erreur est survenue lors de la génération de la réponse.";
+        const errorMessage = "❌ Oups, une erreur est survenue. Réessayez plus tard.";
         const formattedMessage = useFontFormatting ? formatResponse(errorMessage) : errorMessage;
         await sendMessage(senderId, { text: formattedMessage }, pageAccessToken);
     }
@@ -83,7 +79,7 @@ const sendConcatenatedMessage = async (senderId, text, pageAccessToken) => {
     if (text.length > maxMessageLength) {
         const messages = splitMessageIntoChunks(text, maxMessageLength);
         for (const message of messages) {
-            await new Promise(resolve => setTimeout(resolve, 500)); // Éviter le spam de messages
+            await new Promise(resolve => setTimeout(resolve, 500));
             await sendMessage(senderId, { text: message }, pageAccessToken);
         }
     } else {
@@ -113,4 +109,4 @@ function formatResponse(responseText) {
     };
 
     return responseText.split('').map(char => fontMap[char] || char).join('');
-            }
+}
