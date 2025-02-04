@@ -44,7 +44,7 @@ const handleChatResponse = async (senderId, input, pageAccessToken) => {
     const formattedAnsweringMessage = useFontFormatting ? formatResponse(answeringMessage) : answeringMessage;
     await sendMessage(senderId, { text: formattedAnsweringMessage }, pageAccessToken);
 
-    const defaultMessage = `𝐎𝐫𝐨𝐜𝐡𝐢 𝐀𝐈
+    const defaultMessage = `𝐎𝐫𝐨𝐜𝐡𝐢 𝐀𝐈 🤖
  ${response}`;
 
     const formattedMessage = useFontFormatting ? formatResponse(defaultMessage) : defaultMessage;
