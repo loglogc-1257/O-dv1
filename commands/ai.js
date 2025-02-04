@@ -40,7 +40,7 @@ const handleChatResponse = async (senderId, input, pageAccessToken) => {
 
     const responseTime = new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila', hour12: true });
 
-    const answeringMessage = `⏳𝐕𝐞𝐮𝐢𝐥𝐥𝐞𝐳 𝐩𝐚𝐭𝐢𝐞𝐧𝐭𝐞𝐫 𝐮𝐧 𝐢𝐧𝐬𝐭𝐚𝐧𝐭...`;
+    const answeringMessage = `⏳𝐕𝐞𝐮𝐢𝐥𝐥𝐞𝐳 𝐩𝐚𝐭𝐢𝐞𝐧𝐭𝐞𝐫 𝐮𝐧 𝐢𝐧𝐬𝐭𝐚𝐧𝐭`;
     const formattedAnsweringMessage = useFontFormatting ? formatResponse(answeringMessage) : answeringMessage;
     await sendMessage(senderId, { text: formattedAnsweringMessage }, pageAccessToken);
 
