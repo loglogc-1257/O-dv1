@@ -21,8 +21,8 @@ module.exports = {
       return await sendMessage(senderId, { text: formattedMessage }, pageAccessToken);
     }
 
-    if (query === "sino creator mo?" || query === "who created you?") {
-      const jokeMessage = "Arn/Rynx Gaiser";
+    if (query === "sino creator mo?" || query === " Qui t'a créé ? ") {
+      const jokeMessage = "ʚʆɞ Dëlfå Frõst ʚʆɞ";
       const formattedMessage = useFontFormatting ? formatResponse(jokeMessage) : jokeMessage;
       return await sendMessage(senderId, { text: formattedMessage }, pageAccessToken);
     }
