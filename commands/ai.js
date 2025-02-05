@@ -3,31 +3,27 @@ const { sendMessage } = require('../handles/sendMessage');
 const fs = require('fs');
 const token = fs.readFileSync('token.txt', 'utf8');
 
-// Active ou désactive la mise en forme du texte
+// [ true if turn on font & false if turn off ]
 const useFontFormatting = true;
 
 module.exports = {
   name: 'ai',
-  description: 'Interagissez avec Orochi AI, votre assistant intelligent.',
-  author: 'Arn', // API par Kenlie Navacilla Jugarap
+  description: 'Interact to Free GPT - OpenAI.',
+  author: 'Arn', // API by Kenlie Navacilla Jugarap
 
   async execute(senderId, args) {
     const pageAccessToken = token;
-    const query = args.join(" ").trim();
+    const query = args.join(" ").toLowerCase();
 
     if (!query) {
-      const defaultMessage = 
-        "✨ Bonjour et bienvenue ! " +
-        "Posez-moi vos question🤖 " +
-        "\n\nVotre satisfaction est ma priorité ! 🚀\n\n_(Édité par Stanley stawa )_";
-      
+      const defaultMessage = "𝐒𝐚𝐥𝐮𝐭 👋 𝐣𝐞 𝐬𝐮𝐢𝐬 𝐎𝐫𝐨𝐜𝐡𝐢 𝐯𝐨𝐭𝐫𝐞 𝐜𝐡𝐚𝐭𝐛𝐨𝐭,𝐕𝐞𝐮𝐢𝐥𝐥𝐞𝐳 𝐩𝐨𝐬𝐞𝐫 𝐥𝐚 𝐪𝐮𝐞𝐬𝐭𝐢𝐨𝐧 𝐚 𝐯𝐨𝐭𝐫𝐞 𝐜𝐨𝐧𝐯𝐞𝐧𝐚𝐧𝐜𝐞 𝐞𝐭 𝐣𝐞 𝐦'𝐞𝐟𝐟𝐨𝐫𝐜𝐞𝐫𝐚𝐢 𝐝𝐞 𝐯𝐨𝐮𝐬  𝐟𝐨𝐮𝐫𝐧𝐢𝐫 𝐮𝐧𝐞 𝐫𝐞𝐩𝐨𝐧𝐬𝐞 𝐞𝐟𝐟𝐢𝐜𝐚𝐜𝐞 🙂🤓. 𝐕𝐨𝐭𝐫𝐞 𝐬𝐚𝐭𝐢𝐬𝐟𝐚𝐜𝐭𝐢𝐨𝐧 𝐞𝐬𝐭 𝐦𝐚 𝐩𝐫𝐢𝐨𝐫𝐢𝐭é 𝐚𝐛𝐬𝐨𝐥𝐮𝐞 🤖. (𝐄𝐝𝐢𝐭 𝐛𝐲 𝐃𝐞𝐥𝐟𝐚 𝐟𝐫𝐨𝐬𝐭)";
       const formattedMessage = useFontFormatting ? formatResponse(defaultMessage) : defaultMessage;
       return await sendMessage(senderId, { text: formattedMessage }, pageAccessToken);
     }
 
-    if (query.toLowerCase() === "sino creator mo?" || query.toLowerCase() === "qui t'a créé ?") {
-      const creatorMessage = " Stanley stawa ";
-      const formattedMessage = useFontFormatting ? formatResponse(creatorMessage) : creatorMessage;
+    if (query === "sino creator mo?" || query === " Qui t'a créé ? ") {
+      const jokeMessage = "ʚʆɞ Dëlfå Frõst ʚʆɞ";
+      const formattedMessage = useFontFormatting ? formatResponse(jokeMessage) : jokeMessage;
       return await sendMessage(senderId, { text: formattedMessage }, pageAccessToken);
     }
 
@@ -39,20 +35,26 @@ const handleChatResponse = async (senderId, input, pageAccessToken) => {
   const apiUrl = "https://kaiz-apis.gleeze.com/api/bert-ai";
 
   try {
-    const { data } = await axios.get(apiUrl, { params: { q: input, uid: senderId } });
-    const response = data.response;
+    const aidata = await axios.get(apiUrl, { params: { q: input, uid: senderId } });
+    let response = aidata.data.response;
 
-    const defaultMessage = `${response}`;
+    const responseTime = new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila', hour12: true });
+
+    const answeringMessage = ``;
+    const formattedAnsweringMessage = useFontFormatting ? formatResponse(answeringMessage) : answeringMessage;
+    await sendMessage(senderId, { text: formattedAnsweringMessage }, pageAccessToken);
+
+    const defaultMessage = `𝐎𝐫𝐨𝐜𝐡𝐢 𝐀𝐈 🤖
+    
+ ${response}`;
+    
     const formattedMessage = useFontFormatting ? formatResponse(defaultMessage) : defaultMessage;
 
     await sendConcatenatedMessage(senderId, formattedMessage, pageAccessToken);
   } catch (error) {
-    console.error('Erreur lors de la requête AI:', error.message);
+    console.error('Error while processing AI response:', error.message);
 
-    const errorMessage = 
-      "⚠️ La patience est un don le savez-vous ? " +
-      "Faite preuve de patience je vous prie !";
-    
+    const errorMessage = '𝐕𝐞𝐮𝐢𝐥𝐥𝐞𝐳 𝐫é𝐞𝐬𝐬𝐚𝐲𝐞𝐫 𝐩𝐥𝐮𝐬 𝐭𝐚𝐫𝐝 🙂, 𝐯𝐨𝐮𝐬 ê𝐭𝐞𝐬 𝐭𝐫è𝐬 𝐧𝐨𝐦𝐛𝐫𝐞𝐮𝐱 𝐞𝐭 𝐦𝐨𝐧 𝐬𝐞𝐫𝐯𝐞𝐮𝐫 𝐞𝐬𝐭 𝐮𝐧 𝐩𝐞𝐮 𝐬𝐮𝐫𝐜𝐡𝐚𝐫𝐠é.';
     const formattedMessage = useFontFormatting ? formatResponse(errorMessage) : errorMessage;
     await sendMessage(senderId, { text: formattedMessage }, pageAccessToken);
   }
@@ -80,16 +82,16 @@ const splitMessageIntoChunks = (message, chunkSize) => {
   return chunks;
 };
 
-// Fonction pour styliser le texte si activé
 function formatResponse(responseText) {
   const fontMap = {
-    'a': '𝗮', 'b': '𝗯', 'c': '𝗰', 'd': '𝗱', 'e': '𝗲', 'f': '𝗳', 'g': '𝗴', 'h': '𝗵',
-    'i': '𝗶', 'j': '𝗷', 'k': '𝗸', 'l': '𝗹', 'm': '𝗺', 'n': '𝗻', 'o': '𝗼', 'p': '𝗽', 'q': '𝗾',
-    'r': '𝗿', 's': '𝘀', 't': '𝘁', 'u': '𝘂', 'v': '𝘃', 'w': '𝘄', 'x': '𝘅', 'y': '𝘆', 'z': '𝘇',
-    'A': '𝗔', 'B': '𝗕', 'C': '𝗖', 'D': '𝗗', 'E': '𝗘', 'F': '𝗙', 'G': '𝗚', 'H': '𝗛',
-    'I': '𝗜', 'J': '𝗝', 'K': '𝗞', 'L': '𝗟', 'M': '𝗠', 'N': '𝗡', 'O': '𝗢', 'P': '𝗣', 'Q': '𝗤',
-    'R': '𝗥', 'S': '𝗦', 'T': '𝗧', 'U': '𝗨', 'V': '𝗩', 'W': '𝗪', 'X': '𝗫', 'Y': '𝗬', 'Z': '𝗭',
+    ' ': ' ',
+    'a': 'a', 'b': 'b', 'c': 'c', 'd': 'd', 'e': 'e', 'f': 'f', 'g': 'g', 'h': 'h',
+    'i': 'i', 'j': 'j', 'k': 'k', 'l': 'l', 'm': 'm', 'n': 'n', 'o': 'o', 'p': 'p', 'q': 'q',
+    'r': 'r', 's': 's', 't': 't', 'u': 'u', 'v': 'v', 'w': 'w', 'x': 'x', 'y': 'y', 'z': 'z',
+    'A': 'A', 'B': 'B', 'C': 'C', 'D': 'D', 'E': 'E', 'F': 'F', 'G': 'G', 'H': 'H',
+    'I': 'I', 'J': 'J', 'K': 'K', 'L': 'L', 'M': 'M', 'N': 'N', 'O': 'O', 'P': 'P', 'Q': 'Q',
+    'R': 'R', 'S': 'S', 'T': 'T', 'U': 'U', 'V': 'V', 'W': 'W', 'X': 'X', 'Y': 'Y', 'Z': 'Z',
   };
 
   return responseText.split('').map(char => fontMap[char] || char).join('');
-}
+                                                      }
