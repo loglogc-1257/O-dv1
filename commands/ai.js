@@ -32,7 +32,7 @@ module.exports = {
 };
 
 const handleChatResponse = async (senderId, input, pageAccessToken) => {
-  const apiUrl = "https://kaiz-apis.gleeze.com/api/bert-ai";
+  const apiUrl = "https://kaiz-apis.gleeze.com/api/gpt-3.5";
 
   try {
     const aidata = await axios.get(apiUrl, { params: { q: input, uid: senderId } });
