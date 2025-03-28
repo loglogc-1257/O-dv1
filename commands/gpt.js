@@ -30,7 +30,7 @@ module.exports = {
   },
 
   async fetchGPT4OResponse(input) {
-    const apiUrl = `https://appjonellccapis.zapto.org/api/gpt4o?ask=${encodeURIComponent(input)}&id=1`;
+    const apiUrl = `https://kaiz-apis.gleeze.com/api/gpt-4o?ask=${encodeURIComponent(prompt)}&uid=${senderId}&webSearch=On`;
     const { data } = await axios.get(apiUrl);
     return data;
   },
