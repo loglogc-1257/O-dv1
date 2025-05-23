@@ -16,7 +16,7 @@ module.exports = {
     }
 
     try {
-      const { data } = await axios.get(`https://kaiz-apis.gleeze.com/api/gpt-4.1?ask=${encodeURIComponent(prompt)}&uid=${senderId}&imageUrl=&apikey=5a7cf1b8-9ad1-4f0d-b38a-c5c0eedb1507`);
+      const { data } = await axios.get(`https://kaiz-apis.gleeze.com/api/gpt-4.1?ask=${encodeURIComponent(prompt)}&uid=${senderId}&imageUrl=&apikey=e295530c-f935-405b-bc51-b39a545fd3a3`);
 
       if (data.response) {
         // Cas 1 : réponse textuelle normale
