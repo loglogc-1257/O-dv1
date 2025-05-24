@@ -3,21 +3,20 @@ const { sendMessage } = require('../handles/sendMessage');
 
 module.exports = {
   name: 'ai',
-  description: 'Interact with You-AI',
+  description: 'Interact with Orochi AI',
   usage: 'gpt4 [your message]',
-  author: 'coffee',
+  author: 'Delfa',
 
   async execute(senderId, args, pageAccessToken) {
     const prompt = args.join(' ');
     if (!prompt) {
       return sendMessage(senderId, {
-        text: "Veuillez poser votre question ou tapez 'help' pour voir les autres commandes disponibles."
+        text: "𝐒𝐚𝐥𝐮𝐭 👋 𝐣𝐞 𝐬𝐮𝐢𝐬 𝐎𝐫𝐨𝐜𝐡𝐢 𝐯𝐨𝐭𝐫𝐞 𝐜𝐡𝐚𝐭𝐛𝐨𝐭,𝐕𝐞𝐮𝐢𝐥𝐥𝐞𝐳 𝐩𝐨𝐬𝐞𝐫 𝐥𝐚 𝐪𝐮𝐞𝐬𝐭𝐢𝐨𝐧 𝐚 𝐯𝐨𝐭𝐫𝐞 𝐜𝐨𝐧𝐯𝐞𝐧𝐚𝐧𝐜𝐞 𝐞𝐭 𝐣𝐞 𝐦'𝐞𝐟𝐟𝐨𝐫𝐜𝐞𝐫𝐚𝐢 𝐝𝐞 𝐯𝐨𝐮𝐬  𝐟𝐨𝐮𝐫𝐧𝐢𝐫 𝐮𝐧𝐞 𝐫𝐞𝐩𝐨𝐧𝐬𝐞 𝐞𝐟𝐟𝐢𝐜𝐚𝐜𝐞 🙂🤓. 𝐕𝐨𝐭𝐫𝐞 𝐬𝐚𝐭𝐢𝐬𝐟𝐚𝐜𝐭𝐢𝐨𝐧 𝐞𝐬𝐭 𝐦𝐚 𝐩𝐫𝐢𝐨𝐫𝐢𝐭é 𝐚𝐛𝐬𝐨𝐥𝐮𝐞 🤖."
       }, pageAccessToken);
     }
 
     try {
-      const { data } = await axios.get(`const API_KEY = "AIzaSyBN4UIH-n3ZKDqXggccAatrcpi_fBf6XiA";
-    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`);
+      const { data } = await axios.get(`https://kaiz-apis.gleeze.com/api/gpt-4.1?ask=${encodeURIComponent(prompt)}&uid=${senderId}&imageUrl=&apikey=e295530c-f935-405b-bc51-b39a545fd3a3`);
 
       if (data.response) {
         // Cas 1 : réponse textuelle normale
@@ -60,8 +59,7 @@ module.exports = {
     } catch (err) {
       console.error("Erreur API AI:", err.message || err);
       sendMessage(senderId, {
-        text: "🤖 Oups ! Une petite erreur est survenue.\n\n" +
-              "❓ Veuillez poser votre question ou tapez 'help' pour voir les autres commandes disponibles."
+        text: "\n\n" + "𝐕𝐞𝐮𝐢𝐥𝐥𝐞𝐳 𝐫e𝐞𝐬𝐬𝐚𝐲𝐞𝐫 𝐩𝐥𝐮𝐬 𝐭𝐚𝐫𝐝 🙂,𝐯𝐨𝐮𝐬 ê𝐭𝐞𝐬 𝐭𝐫è𝐬 𝐧𝐨𝐦𝐛𝐫𝐞𝐮𝐱 𝐞𝐭 𝐦𝐨𝐧 𝐬𝐞𝐫𝐯𝐞𝐮𝐫 𝐞𝐬𝐭 𝐮𝐧 𝐩𝐞𝐮 𝐬𝐮𝐫𝐜𝐡𝐚𝐫𝐠é."
       }, pageAccessToken);
     }
   }
