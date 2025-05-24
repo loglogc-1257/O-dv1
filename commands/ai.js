@@ -109,7 +109,7 @@ module.exports = {
           const url = urlMatch ? urlMatch[0] : '';
 
           // Compose exactly as requested, no extra newlines
-          const formattedImageReply = `💬 | Amir GPT--------------- Generated Image: ${description}\n\n${url} ---------------`;
+          const formattedImageReply = ` Generated Image: ${description}\n\n${url} `;
           await sendMessage(senderId, { text: formattedImageReply }, pageAccessToken);
           return;
         }
