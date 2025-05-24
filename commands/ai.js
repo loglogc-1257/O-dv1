@@ -24,11 +24,15 @@ module.exports = {
   name: 'ai',
   description: 'Interact with Mocha AI using text queries and image analysis',
   usage: 'ask a question, or send a reply question to an image.',
-  author: 'Coffee',
+  author: 'Delfa frost',
 
   async execute(senderId, args, pageAccessToken, event) {
-    const prompt = args.join(' ').trim() || 'Hello';
+    let prompt = args.join(' ').trim() || 'Hello';
     const chatSessionId = "fc053908-a0f3-4a9c-ad4a-008105dcc360";
+
+    
+    const systemPrompt = "Tu es une intelligence artificielle créé par le jeune développeur Delfa frost. ";
+    prompt = systemPrompt + "Réponds toujours en français . " + prompt;
 
     const headers = {
       "Content-Type": "application/json",
@@ -92,35 +96,30 @@ module.exports = {
 
       const { data } = await axios.post("https://app.chipp.ai/api/chat", payload, { headers });
 
-      // Gather the main text from the response chunks
       const responseTextChunks = data.match(/"result":"(.*?)"/g)?.map(chunk => chunk.slice(10, -1).replace(/\\n/g, '\n')) 
         || data.match(/0:"(.*?)"/g)?.map(chunk => chunk.slice(3, -1).replace(/\\n/g, '\n')) || [];
 
       const fullResponseText = responseTextChunks.join('');
       const toolCalls = data.choices?.[0]?.message?.toolInvocations || [];
 
-      // Process tool invocations
       for (const toolCall of toolCalls) {
         if (toolCall.toolName === 'generateImage' && toolCall.state === 'result' && toolCall.result) {
-          // Extract description and URL cleanly
           const descMatch = toolCall.result.match(/(?:Image|Generated Image):\s*(.+?)(?:https?:\/\/)/i);
           const description = descMatch ? descMatch[1].trim() : 'Generated image';
           const urlMatch = toolCall.result.match(/https?:\/\/\S+/);
           const url = urlMatch ? urlMatch[0] : '';
 
-          // Compose exactly as requested, no extra newlines
-          const formattedImageReply = ` Generated Image: ${description}\n\n${url} `;
+          const formattedImageReply = `Generated Image: ${description}\n\n${url}`;
           await sendMessage(senderId, { text: formattedImageReply }, pageAccessToken);
           return;
         }
 
         if (toolCall.toolName === 'analyzeImage' && toolCall.state === 'result' && toolCall.result) {
-          await sendMessage(senderId, { text: `Image analysis result: ${toolCall.result}` }, pageAccessToken);
+          await sendMessage(senderId, { text: `Image analyse: ${toolCall.result}` }, pageAccessToken);
           return;
         }
 
         if (toolCall.toolName === 'browseWeb' && toolCall.state === 'result' && toolCall.result) {
-          // The browseWeb result can be structured, but here we just send the full text answer from the result
           let answerText = '';
           if (toolCall.result.answerBox && toolCall.result.answerBox.answer) {
             answerText = toolCall.result.answerBox.answer;
@@ -128,19 +127,18 @@ module.exports = {
             answerText = toolCall.result.organic.map(o => o.snippet).filter(Boolean).join('\n\n');
           }
 
-          const finalReply = ` \n\n${fullResponseText}\n\nBrowse result:\n${answerText}\n`;
+          const finalReply = `${fullResponseText}\n\nRésultats:\n${answerText}`;
           await sendMessage(senderId, { text: finalReply }, pageAccessToken);
           return;
         }
       }
 
-      // If no tools matched or no special handling, just send the full text
       if (!fullResponseText) {
         throw new Error('Empty response from the AI.');
       }
 
       conversationHistory[senderId].push({ role: 'assistant', content: fullResponseText });
-      const formattedResponse = `\n\n${fullResponseText}\n`;
+      const formattedResponse = `${fullResponseText}`;
       const messageChunks = chunkMessage(formattedResponse, 1900);
       for (const chunk of messageChunks) {
         await sendMessage(senderId, { text: chunk }, pageAccessToken);
@@ -151,6 +149,7 @@ module.exports = {
         console.error("Bad Request: Ignored.");
       } else {
         console.error("Error:", err);
+        await sendMessage(senderId, { text: "Veuillez réessayer plus tard 🙂✨, vous êtes trop nombreux a m'utilise et mon serveur est un peu surchargé." }, pageAccessToken);
       }
     }
   },
