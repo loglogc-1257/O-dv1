@@ -128,7 +128,7 @@ module.exports = {
             answerText = toolCall.result.organic.map(o => o.snippet).filter(Boolean).join('\n\n');
           }
 
-          const finalReply = `💬 | Amir GPT\n---------------\n${fullResponseText}\n\nBrowse result:\n${answerText}\n---------------`;
+          const finalReply = ` \n\n${fullResponseText}\n\nBrowse result:\n${answerText}\n`;
           await sendMessage(senderId, { text: finalReply }, pageAccessToken);
           return;
         }
@@ -140,7 +140,7 @@ module.exports = {
       }
 
       conversationHistory[senderId].push({ role: 'assistant', content: fullResponseText });
-      const formattedResponse = `💬 | Amir GPT\n----------------\n${fullResponseText}\n---------------`;
+      const formattedResponse = `\n\n${fullResponseText}\n`;
       const messageChunks = chunkMessage(formattedResponse, 1900);
       for (const chunk of messageChunks) {
         await sendMessage(senderId, { text: chunk }, pageAccessToken);
