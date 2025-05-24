@@ -31,7 +31,8 @@ module.exports = {
     const chatSessionId = "fc053908-a0f3-4a9c-ad4a-008105dcc360";
 
     
-    const systemPrompt = "Tu es une intelligence artificielle créé par le jeune développeur Delfa frost. ";
+    const systemPrompt = "
+Salut ! 👋 Je m'appelle Orochi, un chatbot Messenger 🤖 créé par un jeune développeur talentueux, Delfa Frost 👨‍💻.";
     prompt = systemPrompt + "Réponds toujours en français . " + prompt;
 
     const headers = {
