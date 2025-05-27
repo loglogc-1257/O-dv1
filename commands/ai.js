@@ -1,162 +1,224 @@
 const axios = require('axios');
+const moment = require('moment-timezone');
 const { sendMessage } = require('../handles/sendMessage');
+
+const formatResponse = (text) => {
+  const charMap = {
+    'A': '𝘈', 'B': '𝘉', 'C': '𝘊', 'D': '𝘋', 'E': '𝘌', 
+    'F': '𝘍', 'G': '𝘎', 'H': '𝘏', 'I': '𝘐', 'J': '𝘑',
+    'K': '𝘒', 'L': '𝘓', 'M': '𝘔', 'N': '𝘕', 'O': '𝘖',
+    'P': '𝘗', 'Q': '𝘘', 'R': '𝘙', 'S': '𝘚', 'T': '𝘛',
+    'U': '𝘜', 'V': '𝘝', 'W': '𝘞', 'X': '𝘟', 'Y': '𝘠',
+    'Z': '𝘡',
+    'a': '𝘢', 'b': '𝘣', 'c': '𝘤', 'd': '𝘥', 'e': '𝘦',
+    'f': '𝘧', 'g': '𝘨', 'h': '𝘩', 'i': '𝘪', 'j': '𝘫',
+    'k': '𝘬', 'l': '𝘭', 'm': '𝘮', 'n': '𝘯', 'o': '𝘰',
+    'p': '𝘱', 'q': '𝘲', 'r': '𝘳', 's': '𝘴', 't': '𝘵',
+    'u': '𝘶', 'v': '𝘷', 'w': '𝘸', 'x': '𝘹', 'y': '𝘺',
+    'z': '𝘻'
+  };
+  return text.split('').map(char => charMap[char] || char).join('');
+};
 
 const getImageUrl = async (event, token) => {
   const mid = event?.message?.reply_to?.mid || event?.message?.mid;
   if (!mid) return null;
-
   try {
     const { data } = await axios.get(`https://graph.facebook.com/v22.0/${mid}/attachments`, {
-      params: { access_token: token }
+      params: { access_token: token },
+      timeout: 10000 
     });
-
-    const imageUrl = data?.data?.[0]?.image_data?.url || data?.data?.[0]?.file_url || null;
-    return imageUrl;
+    return data?.data?.[0]?.image_data?.url || data?.data?.[0]?.file_url || null;
   } catch (err) {
-    console.error("Image URL fetch error:", err?.response?.data || err.message);
+    console.error("Erreur récupération URL image:", err?.response?.data || err.message); 
     return null;
   }
 };
 
+const getImageBase64 = async (imageUrl) => {
+  try {
+    const headResponse = await axios.head(imageUrl, { timeout: 5000 });
+    const contentLength = parseInt(headResponse.headers['content-length'] || '0', 10);
+    if (contentLength > 15 * 1024 * 1024) return null; 
+    const response = await axios.get(imageUrl, { responseType: 'arraybuffer', timeout: 15000 }); 
+    const base64 = Buffer.from(response.data).toString('base64');
+    return `data:image/jpeg;base64,${base64}`;
+  } catch (err) {
+    console.error("Erreur conversion image base64:", err.message); 
+    return null;
+  }
+};
+
+const getCurrentDateTime = (timezone = 'Africa/Lagos') => {
+  const dt = moment().tz(timezone);
+  return `${dt.format('DD MMMM YYYY, HH:mm')} ${dt.zoneAbbr()}`;
+};
+
+const getUserName = async (senderId, pageAccessToken) => {
+  try {
+    const { data } = await axios.get(`https://graph.facebook.com/v22.0/${senderId}`, {
+      params: { access_token: pageAccessToken, fields: 'name' },
+      timeout: 10000 
+    });
+    return data.name || 'Utilisateur ';
+  } catch (err) {
+    console.error("Erreur récupération nom user:", err?.response?.data || err.message); 
+    return 'Utilisateur anonyme';
+  }
+};
+
 const conversationHistory = {};
+const userData = {};
+
+const buildIdentityContext = (userName, dateTime) => {
+  return `
+  [DIRECTIVES PRINCIPALES]
+  8.tu es messie IA , tu dois pouvoir reconnaître être messie IA conçu par messie osango 
+  1. Ne mentionner Messie Osango que si questionné sur ta création, origines, créateur ou maître
+  2. Se souvenir des conversations précédentes
+  3. Conserver le contexte de la conversation
+  4. Style: Professionnel mais amical, en français
+  .5 ne jamais répondre en encadrent la réponse ou un mot par :*****. A moins que se soit nécessaire 
+  6. pouvoir extraire les informations sur une image envoyée par l'utilisateur et en tirer des conclusions 
+  7. être capable de savoir ce qui est sur une image envoyée par l'utilisateur 
+  9. tu dois répondre avec précision, si tu es salué ne fais pas des longues phrases mais réponds Direct 
+  `;
+};
+
+const buildConversationContext = (history) => {
+  if (history.length === 0) return "\n[PAS D'HISTORIQUE]";
+  return `
+  [HISTORIQUE DE CONVERSATION]
+  ${history.slice(-3).map((msg, i) => 
+    `${msg.role === 'user' ? 'UTILISATEUR' : 'MESSE IA'}: ${msg.content}`
+  ).join('\n')}
+  `;
+};
 
 module.exports = {
   name: 'ai',
-  description: 'Interact with Mocha AI using text queries and image analysis',
-  usage: 'ask a question, or send a reply question to an image.',
-  author: 'Coffee',
-
+  description: 'mon bot page',
+  usage: 'Posez votre question ou envoyez une image',
+  author: 'Messie Osango',
   async execute(senderId, args, pageAccessToken, event) {
-    const prompt = args.join(' ').trim() || 'Hello';
-    const chatSessionId = "fc053908-a0f3-4a9c-ad4a-008105dcc360";
-
-const headers = {
-  "Content-Type": "application/json",
-  "User-Agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36",
-  "Sec-CH-UA-Platform": "\"Android\"",
-  "Sec-CH-UA": "\"Chromium\";v=\"136\", \"Brave\";v=\"136\", \"Not.A/Brand\";v=\"99\"",
-  "Sec-CH-UA-Mobile": "?1",
-  "Accept": "*/*",
-  "Sec-GPC": "1",
-  "Accept-Language": "en-US,en;q=0.9",
-  "Origin": "https://newapplication-70381.chipp.ai",
-  "Sec-Fetch-Site": "same-origin",
-  "Sec-Fetch-Mode": "cors",
-  "Sec-Fetch-Dest": "empty",
-  "Referer": "https://newapplication-70381.chipp.ai/w/chat/",
-  "Accept-Encoding": "gzip, deflate, br, zstd",
-  "Cookie": [
-    "__Host-next-auth.csrf-token=4723c7d0081a66dd0b572f5e85f5b40c2543881365782b6dcca3ef7eabdc33d6%7C06adf96c05173095abb983f9138b5e7ee281721e3935222c8b369c71c8e6536b",
-    "__Secure-next-auth.callback-url=https%3A%2F%2Fapp.chipp.ai",
-    "userId_70381=729a0bf6-bf9f-4ded-a861-9fbb75b839f5",
-    "correlationId=f8752bd2-a7b2-47ff-bd33-d30e5480eea8"
-  ].join("; "),
-  "Priority": "u=1, i"
-};
+    let query = args.join(' ').trim() || 'Bonjour';
+    const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyBQeZVi4QdrnGKPEfXXx1tdIqlMM8iqvZw';
+    const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
 
     try {
-      if (!conversationHistory[senderId]) {
-        conversationHistory[senderId] = [];
+      if (!pageAccessToken || !senderId || !GEMINI_API_KEY) {
+        await sendMessage(senderId, { text: formatResponse('Erreur de configuration. Contactez Messie Osango.') }, pageAccessToken);
+        return;
       }
 
-      conversationHistory[senderId].push({ role: 'user', content: prompt });
+      if (!conversationHistory[senderId]) conversationHistory[senderId] = [];
+      if (!userData[senderId]) userData[senderId] = { name: await getUserName(senderId, pageAccessToken) };
 
-      const chunkMessage = (message, maxLength) => {
-        const chunks = [];
-        for (let i = 0; i < message.length; i += maxLength) {
-          chunks.push(message.slice(i, i + maxLength));
-        }
-        return chunks;
-      };
+      const dateTime = getCurrentDateTime();
+      const userName = userData[senderId].name;
 
       const imageUrl = await getImageUrl(event, pageAccessToken);
-
-      let payload;
-
       if (imageUrl) {
-        const combinedPrompt = `${prompt}\nImage URL: ${imageUrl}`;
-        payload = {
-          messages: [...conversationHistory[senderId], { role: 'user', content: combinedPrompt }],
-          chatSessionId,
-          toolInvocations: [
-            {
-              toolName: 'analyzeImage',
-              args: {
-                userQuery: prompt,
-                imageUrls: [imageUrl],
-              }
-            }
-          ]
-        };
-      } else {
-        payload = {
-          messages: [...conversationHistory[senderId]],
-          chatSessionId,
-        };
-      }
-
-const { data } = await axios.post("https://newapplication-70381.chipp.ai/api/chat", payload, { headers });
-
-      // Gather the main text from the response chunks
-      const responseTextChunks = data.match(/"result":"(.*?)"/g)?.map(chunk => chunk.slice(10, -1).replace(/\\n/g, '\n')) 
-        || data.match(/0:"(.*?)"/g)?.map(chunk => chunk.slice(3, -1).replace(/\\n/g, '\n')) || [];
-
-      const fullResponseText = responseTextChunks.join('');
-      const toolCalls = data.choices?.[0]?.message?.toolInvocations || [];
-
-      // Process tool invocations
-      for (const toolCall of toolCalls) {
-        if (toolCall.toolName === 'generateImage' && toolCall.state === 'result' && toolCall.result) {
-          // Extract description and URL cleanly
-          const descMatch = toolCall.result.match(/(?:Image|Generated Image):\s*(.+?)(?:https?:\/\/)/i);
-          const description = descMatch ? descMatch[1].trim() : 'Generated image';
-          const urlMatch = toolCall.result.match(/https?:\/\/\S+/);
-          const url = urlMatch ? urlMatch[0] : '';
-
-          // Compose exactly as requested, no extra newlines
-          const formattedImageReply = ` Generated Image: ${description}\n\n${url} `;
-          await sendMessage(senderId, { text: formattedImageReply }, pageAccessToken);
+        const imageBase64 = await getImageBase64(imageUrl);
+        if (!imageBase64) {
+          await sendMessage(senderId, { text: formatResponse('Erreur : image trop lourde ou illisible (max 15Mo)') }, pageAccessToken);
           return;
         }
 
-        if (toolCall.toolName === 'analyzeImage' && toolCall.state === 'result' && toolCall.result) {
-          await sendMessage(senderId, { text: `Image analysis result: ${toolCall.result}` }, pageAccessToken);
-          return;
-        }
+        const fullPrompt = `
+        ${buildIdentityContext(userName, dateTime)}
+        ${buildConversationContext(conversationHistory[senderId])}
+        
+        Instruction: Analyse cette image et réponds à: "${query}"
+        Exigences:
+        -tu es messie IA , tu dois pouvoir reconnaître être messie IA, conçu par messie osango 
+        - reconnaître être créé, conçu, développé par messie osango 
+        - Ne mentionner Messie Osango que si questionné sur ta création, origines, créateur ou maître
+        - Se souvenir des conversations précédentes
+          -tu dois répondre avec précision, si tu es salué ne fais pas des longues phrases mais réponds Direct
+        - Utiliser la police stylisée
+        
+        -ne jamais encadrer la réponse par :****
+        `;
 
-        if (toolCall.toolName === 'browseWeb' && toolCall.state === 'result' && toolCall.result) {
-          // The browseWeb result can be structured, but here we just send the full text answer from the result
-          let answerText = '';
-          if (toolCall.result.answerBox && toolCall.result.answerBox.answer) {
-            answerText = toolCall.result.answerBox.answer;
-          } else if (Array.isArray(toolCall.result.organic)) {
-            answerText = toolCall.result.organic.map(o => o.snippet).filter(Boolean).join('\n\n');
-          }
+        const geminiResponse = await axios.post(
+          `${GEMINI_API_URL}?key=${GEMINI_API_KEY}`,
+          {
+            contents: [{
+              parts: [
+                { text: fullPrompt },
+                { inlineData: { mimeType: 'image/jpeg', data: imageBase64.split(',')[1] } }
+              ]
+            }]
+          },
+          { timeout: 60000 }
+        );
 
-          const finalReply = `\n\n${fullResponseText}\n\nBrowse result:\n${answerText}\n`;
-          await sendMessage(senderId, { text: finalReply }, pageAccessToken);
-          return;
-        }
+        const rawAnswer = geminiResponse.data.candidates?.[0]?.content?.parts?.[0]?.text || 'Je ne peux pas analyser cette image.';
+        const answer = rawAnswer;
+        
+        conversationHistory[senderId].push({ role: 'user', content: `[IMAGE] ${query}` });
+        conversationHistory[senderId].push({ role: 'assistant', content: rawAnswer });
+
+        await sendMessage(senderId, { text: formatResponse(answer) }, pageAccessToken);
+        return;
       }
 
-      // If no tools matched or no special handling, just send the full text
-      if (!fullResponseText) {
-        throw new Error('Empty response from the AI.');
+      conversationHistory[senderId].push({ role: 'user', content: query });
+
+      const fullPrompt = `
+      ${buildIdentityContext(userName, dateTime)}
+      ${buildConversationContext(conversationHistory[senderId])}
+      
+      Dernier message: "${query}"
+      
+      [INSTRUCTIONS]
+      
+      1. Répondre en français avec police stylisée
+      2. Ne mentionner Messie Osango que si questionné sur ta création, origines, créateur ou maître
+      3. Pour questions sans réponse: "Recherche en cours [sujet]"
+      4. Ton caractère doit être professionnel mais amical
+      5. réponds professionnellement 
+      6.donne ta réponse sans mot du début comme :*bienvenu*,*bien entendu* ou des mots de ce genre mais réponds avec précision et gentillesse 
+      7.tu es messie IA tu dois pouvoir reconnaître être messie Ai, conçu par messie osango 
+       8. tu dois répondre avec précision, si tu es salué ne fais pas des longues phrases mais réponds Direct
+      `;
+
+      const llamaResponse = await axios.post(
+        'https://uchiha-perdu-ia-five.vercel.app/api',
+        { prompt: fullPrompt },
+        { timeout: 30000 }
+      );
+
+      let answer = llamaResponse.data.response || 'Je ne peux pas répondre maintenant.';
+
+      if (answer.startsWith('Recherche en cours')) {
+        const searchTerm = answer.replace('Recherche en cours', '').trim();
+        const searchResponse = await axios.post(
+          'https://uchiha-perdu-search-api.vercel.app/search',
+          { query: searchTerm },
+          { timeout: 30000 }
+        );
+        answer = searchResponse.data.response || `Aucun résultat pour "${searchTerm}"`;
       }
 
-      conversationHistory[senderId].push({ role: 'assistant', content: fullResponseText });
-      const formattedResponse = `\n\n${fullResponseText}\n`;
-      const messageChunks = chunkMessage(formattedResponse, 1900);
-      for (const chunk of messageChunks) {
+      conversationHistory[senderId].push({ role: 'assistant', content: answer });
+      
+      const chunks = [];
+      const formattedAnswer = formatResponse(answer);
+      for (let i = 0; i < formattedAnswer.length; i += 1900) {
+        chunks.push(formattedAnswer.substring(i, i + 1900));
+      }
+      
+      for (const chunk of chunks) {
         await sendMessage(senderId, { text: chunk }, pageAccessToken);
       }
 
     } catch (err) {
-      if (err.response && err.response.status === 400) {
-        console.error("Bad Request: Ignored.");
-      } else {
-        console.error("Error:", err);
-      }
+      console.error('Erreur:', err);
+      await sendMessage(senderId, { 
+        text: formatResponse('Erreur système - Messie Osango a été notifié') 
+      }, pageAccessToken);
     }
   },
 };
