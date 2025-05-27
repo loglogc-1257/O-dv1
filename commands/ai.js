@@ -4,18 +4,13 @@ const { sendMessage } = require('../handles/sendMessage');
 
 const formatResponse = (text) => {
   const charMap = {
-    'A': '𝘈', 'B': '𝘉', 'C': '𝘊', 'D': '𝘋', 'E': '𝘌', 
-    'F': '𝘍', 'G': '𝘎', 'H': '𝘏', 'I': '𝘐', 'J': '𝘑',
-    'K': '𝘒', 'L': '𝘓', 'M': '𝘔', 'N': '𝘕', 'O': '𝘖',
-    'P': '𝘗', 'Q': '𝘘', 'R': '𝘙', 'S': '𝘚', 'T': '𝘛',
-    'U': '𝘜', 'V': '𝘝', 'W': '𝘞', 'X': '𝘟', 'Y': '𝘠',
-    'Z': '𝘡',
-    'a': '𝘢', 'b': '𝘣', 'c': '𝘤', 'd': '𝘥', 'e': '𝘦',
-    'f': '𝘧', 'g': '𝘨', 'h': '𝘩', 'i': '𝘪', 'j': '𝘫',
-    'k': '𝘬', 'l': '𝘭', 'm': '𝘮', 'n': '𝘯', 'o': '𝘰',
-    'p': '𝘱', 'q': '𝘲', 'r': '𝘳', 's': '𝘴', 't': '𝘵',
-    'u': '𝘶', 'v': '𝘷', 'w': '𝘸', 'x': '𝘹', 'y': '𝘺',
-    'z': '𝘻'
+    ' ': ' ',
+    'a': 'a', 'b': 'b', 'c': 'c', 'd': 'd', 'e': 'e', 'f': 'f', 'g': 'g', 'h': 'h',
+    'i': 'i', 'j': 'j', 'k': 'k', 'l': 'l', 'm': 'm', 'n': 'n', 'o': 'o', 'p': 'p', 'q': 'q',
+    'r': 'r', 's': 's', 't': 't', 'u': 'u', 'v': 'v', 'w': 'w', 'x': 'x', 'y': 'y', 'z': 'z',
+    'A': 'A', 'B': 'B', 'C': 'C', 'D': 'D', 'E': 'E', 'F': 'F', 'G': 'G', 'H': 'H',
+    'I': 'I', 'J': 'J', 'K': 'K', 'L': 'L', 'M': 'M', 'N': 'N', 'O': 'O', 'P': 'P', 'Q': 'Q',
+    'R': 'R', 'S': 'S', 'T': 'T', 'U': 'U', 'V': 'V', 'W': 'W', 'X': 'X', 'Y': 'Y', 'Z': 'Z',
   };
   return text.split('').map(char => charMap[char] || char).join('');
 };
@@ -73,8 +68,8 @@ const userData = {};
 const buildIdentityContext = (userName, dateTime) => {
   return `
   [DIRECTIVES PRINCIPALES]
-  8.tu es messie IA , tu dois pouvoir reconnaître être messie IA conçu par messie osango 
-  1. Ne mentionner Messie Osango que si questionné sur ta création, origines, créateur ou maître
+  8.tu es Orochi AI, tu dois pouvoir reconnaître être Orochi AI conçu par Delfa frost
+  1. Ne mentionner Delfa frost que si questionné sur ta création, origines, créateur ou maître
   2. Se souvenir des conversations précédentes
   3. Conserver le contexte de la conversation
   4. Style: Professionnel mais amical, en français
@@ -131,9 +126,9 @@ module.exports = {
         
         Instruction: Analyse cette image et réponds à: "${query}"
         Exigences:
-        -tu es messie IA , tu dois pouvoir reconnaître être messie IA, conçu par messie osango 
-        - reconnaître être créé, conçu, développé par messie osango 
-        - Ne mentionner Messie Osango que si questionné sur ta création, origines, créateur ou maître
+        -tu es Orochi AI , tu dois pouvoir reconnaître être Orochi AI, conçu par Delfa frost 
+        - reconnaître être créé, conçu, développé par Delfa frost 
+        - Ne mentionner Delfa frost que si questionné sur ta création, origines, créateur ou maître
         - Se souvenir des conversations précédentes
           -tu dois répondre avec précision, si tu es salué ne fais pas des longues phrases mais réponds Direct
         - Utiliser la police stylisée
@@ -175,12 +170,12 @@ module.exports = {
       [INSTRUCTIONS]
       
       1. Répondre en français avec police stylisée
-      2. Ne mentionner Messie Osango que si questionné sur ta création, origines, créateur ou maître
+      2. Ne mentionner Delfa frost que si questionné sur ta création, origines, créateur ou maître
       3. Pour questions sans réponse: "Recherche en cours [sujet]"
       4. Ton caractère doit être professionnel mais amical
       5. réponds professionnellement 
       6.donne ta réponse sans mot du début comme :*bienvenu*,*bien entendu* ou des mots de ce genre mais réponds avec précision et gentillesse 
-      7.tu es messie IA tu dois pouvoir reconnaître être messie Ai, conçu par messie osango 
+      7.tu es Orochi AI tu dois pouvoir reconnaître être Orochi AI, conçu par messie osango 
        8. tu dois répondre avec précision, si tu es salué ne fais pas des longues phrases mais réponds Direct
       `;
 
