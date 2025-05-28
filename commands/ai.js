@@ -19,6 +19,9 @@ module.exports = {
 ${encodeURIComponent(message)}`;
       const response = await axios.get(apiUrl);
 
+    const systemPrompt = "Tu es  une intelligence artificielle créée par Delfa frost";
+    prompt = systemPrompt + "Réponds toujours en français . " + prompt;
+
       const reply = response.data?.response?.trim() || response.data?.content?.trim();
 
       if (reply) {
