@@ -212,7 +212,7 @@ module.exports = {
     } catch (err) {
       console.error('Erreur:', err);
       await sendMessage(senderId, { 
-        text: formatResponse('Veuillez réessayer plus tard 🙂✨,vous êtes trop nombreux a m'utilise et mon serveur est un peu surchargé.') 
+        text: formatResponse('Veuillez réessayer plus tard 🙂✨,vous êtes trop nombreux a m'utilisé et mon serveur est un peu surchargé.') 
       }, pageAccessToken);
     }
   },
