@@ -4,8 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js" 
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
@@ -17,9 +16,7 @@
     "express": "^4.19.2",
     "node-fetch": "^3.3.2",
     "request": "^2.88.2",
-    "winston": "^3.13.0",
-    "moment": "^2.29.4", 
-    "moment-timezone": "^0.5.43" 
+    "winston": "^3.13.0"
   },
   "engines": {
     "node": "20.x"
