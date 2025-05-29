@@ -17,7 +17,7 @@ module.exports = {
 
     try {
       // Appel à l'API Pollinations
-      const { data } = await axios.get(`https://text.pollinations.ai/salut?text=${encodeURIComponent(prompt)}`);
+      const { data } = await axios.get(`https://text.pollinations.ai/prompt?text=${encodeURIComponent(prompt)}`);
 
       // Fragmentation si le texte est trop long
       const parts = [];
