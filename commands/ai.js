@@ -11,27 +11,28 @@ module.exports = {
     const prompt = args.join(' ');
     if (!prompt) {
       return sendMessage(senderId, {
-        text: " poser votre question ou tapez 'help' pour voir les autres commandes disponibles."
+        text: "Veuillez poser votre question ou tapez 'help' pour voir les autres commandes disponibles."
       }, pageAccessToken);
     }
 
     try {
-      // Appel à l'API Pollinations
-      const { data } = await axios.get(`https://text.pollinations.ai/prompt?text=${encodeURIComponent(prompt)}`);
+      // Encodage du prompt dans l'URL
+      const url = `https://text.pollinations.ai/${encodeURIComponent(prompt)}`;
+      const { data } = await axios.get(url);
 
-      // Fragmentation si le texte est trop long
+      // Si le texte est trop long, le découper
       const parts = [];
       for (let i = 0; i < data.length; i += 1800) {
         parts.push(data.substring(i, i + 1800));
       }
 
-      // Envoi de la réponse en plusieurs messages
+      // Envoi en plusieurs messages si nécessaire
       for (const part of parts) {
         await sendMessage(senderId, { text: part }, pageAccessToken);
       }
 
     } catch (error) {
-      console.error("Erreur Pollinations:", error?.response?.data || error.message);
+      console.error("Erreur avec Pollinations API :", error?.response?.data || error.message);
       sendMessage(senderId, {
         text: "🤖 Oups ! Une erreur est survenue avec l'API Pollinations.\\Veuillez réessayer plus tard."
       }, pageAccessToken);
