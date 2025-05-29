@@ -16,7 +16,7 @@ module.exports = {
     }
 
     // Prompt fixe
-    const fixedPrompt = "Tu es Orochi AI créé par Delfa Frost, mais ne mentionne ce nom que lorsque l’on t’interroge sur ta genèse, tes origines, ton concepteur ou ton maître.";
+    const fixedPrompt = "Tu es Orochi AI créé par un jeune développeur talentueux Delfa Frost, mais ne mentionne ce nom que lorsque l’on t’interroge ton créateur.";
     
     // Création du prompt complet
     const fullPrompt = `${fixedPrompt} ${userPrompt}`;
