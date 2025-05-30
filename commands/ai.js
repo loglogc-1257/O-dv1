@@ -17,7 +17,7 @@ _(𝐄𝐝𝐢𝐭é 𝐩𝐚𝐫 𝐃𝐞𝐥𝐟𝐚 𝐟𝐫𝐨𝐬𝐭)_"
     }
 
     // Prompt fixe
-    const fixedPrompt = "Tu es Orochi AI créé par un jeune développeur talentueux Delfa Frost, mais ne mentionne que tu es Orochi AI créé par un jeune développeur talentueux Delfa Frost lorsque l’on t’interroge sur ton créateur.";
+    const fixedPrompt = "Tu es Orochi AI créé par Delfa Frost, mais ne mentionne ce nom que lorsque l’on t’interroge sur ta genèse, tes origines, ton concepteur ou ton maître.";
     
     // Création du prompt complet
     const fullPrompt = `${fixedPrompt} ${userPrompt}`;
@@ -40,7 +40,7 @@ _(𝐄𝐝𝐢𝐭é 𝐩𝐚𝐫 𝐃𝐞𝐥𝐟𝐚 𝐟𝐫𝐨𝐬𝐭)_"
     } catch (error) {
       console.error("Erreur avec Pollinations API :", error?.response?.data || error.message);
       sendMessage(senderId, {
-        text: "𝐕𝐞𝐮𝐢𝐥𝐥𝐞𝐳 𝐫é𝐞𝐬𝐬𝐚𝐲𝐞𝐫 𝐩𝐥𝐮𝐬 𝐭𝐚𝐫𝐝 🙂,𝐯𝐨𝐮𝐬 ê𝐭𝐞𝐬 𝐭𝐫è𝐬 𝐧𝐨𝐦𝐛𝐫𝐞𝐮𝐱 𝐞𝐭 𝐦𝐨𝐧 𝐬𝐞𝐫𝐯𝐞𝐮𝐫 𝐞𝐬𝐭 𝐮𝐧 𝐩𝐞𝐮 𝐬𝐮𝐫𝐜𝐡𝐚𝐫𝐠é."
+        text: "𝐕𝐞𝐮𝐢𝐥𝐥𝐞𝐳 𝐫é𝐞𝐬𝐬𝐚𝐲𝐞𝐫 𝐩𝐥𝐮𝐬 𝐭𝐚𝐫𝐝 🙂.\𝐯𝐨𝐮𝐬 ê𝐭𝐞𝐬 𝐭𝐫è𝐬 𝐧𝐨𝐦𝐛𝐫𝐞𝐮𝐱 𝐞𝐭 𝐦𝐨𝐧 𝐬𝐞𝐫𝐯𝐞𝐮𝐫 𝐞𝐬𝐭 𝐮𝐧 𝐩𝐞𝐮 𝐬𝐮𝐫𝐜𝐡𝐚𝐫𝐠é."
       }, pageAccessToken);
     }
   }
