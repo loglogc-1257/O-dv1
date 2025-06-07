@@ -1,13 +1,9 @@
 const axios = require('axios');
 const { sendMessage } = require('../handles/sendMessage');
 
-// Clé API Gemini
-const GEMINI_API_KEY = 'AIzaSyAV0s2XU0gkrfkWiBOMxx6d6AshqnyPbiE';
-const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
-
 module.exports = {
   name: 'ai',
-  description: 'Interagit avec Gemini (Stanley Bot)',
+  description: 'Interagit avec Pollinations (Stanley Bot)',
   usage: 'ai [votre message]',
   author: 'Stanley',
 
@@ -24,27 +20,20 @@ module.exports = {
     const fullPrompt = `${fixedPrompt} ${userPrompt}`;
 
     try {
-      const payload = {
-        contents: [
-          {
-            parts: [{ text: fullPrompt }]
-          }
-        ]
-      };
+      // Utilisation de l'API Pollinations
+      const url = `https://text.pollinations.ai/${encodeURIComponent(fullPrompt)}`;
+      const { data } = await axios.get(url);
 
-      const response = await axios.post(GEMINI_API_URL, payload);
-      const result = response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
-
-      if (!result) {
+      if (!data || typeof data !== 'string') {
         return sendMessage(senderId, {
-          text: "🤖 Je n'ai pas pu générer de réponse. Essaie encore.",
+          text: "🤖 Je n'ai pas pu générer de réponse avec Pollinations. Essaie encore.",
         }, pageAccessToken);
       }
 
-      // Découpe si trop long (Messenger ou autres ont des limites)
+      // Découpe si trop long (Messenger a une limite de ~2000 caractères)
       const parts = [];
-      for (let i = 0; i < result.length; i += 1800) {
-        parts.push(result.slice(i, i + 1800));
+      for (let i = 0; i < data.length; i += 1800) {
+        parts.push(data.slice(i, i + 1800));
       }
 
       for (const part of parts) {
@@ -52,9 +41,9 @@ module.exports = {
       }
 
     } catch (error) {
-      console.error("Erreur Gemini API :", error?.response?.data || error.message);
+      console.error("Erreur avec Pollinations API :", error?.response?.data || error.message);
       await sendMessage(senderId, {
-        text: "⚠️ Une erreur est survenue avec Gemini. Réessaie plus tard.",
+        text: "⚠️ Une erreur est survenue avec Pollinations. Réessaye plus tard.",
       }, pageAccessToken);
     }
   }
