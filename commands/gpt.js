@@ -1,48 +1,92 @@
 const axios = require('axios');
-const fs = require('fs');
 const { sendMessage } = require('../handles/sendMessage');
+const fs = require('fs');
+const path = require('path');
 
-const token = fs.readFileSync('token.txt', 'utf8');
+// API Gemini 2.0 Flash — NE PAS exposer en production
+const GEMINI_API_KEY = 'AIzaSyAV0s2XU0gkrfkWiBOMxx6d6AshqnyPbiE';
+const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
+
+// Fichier JSON où les images sont stockées temporairement
+const imageFilePath = path.join(__dirname, '../data/image.json');
 
 module.exports = {
-  name: 'gpt',
-  description: 'Interact with the GPT-4o API',
-  usage: '-gpt [hello!]',
-  author: 'coffee',
+  name: 'Ai',
+  description: 'Interagit avec Gemini 2.0 (texte et/ou image).',
+  usage: 'Ai [question] ou envoyez une image avant de poser une question.',
+  author: 'Raniel',
 
-  async execute(senderId, args) {
-    const input = this.parseInput(args);
-    if (!input) {
-      return await this.sendError(senderId, 'Error: Missing input!');
-    }
+  async execute(senderId, args, pageAccessToken) {
+    const prompt = args.join(' ').trim();
 
+    let imageData = {};
     try {
-      const response = await this.fetchGPT4OResponse(input);
-      await sendMessage(senderId, { text: this.formatResponse(response) }, token);
-    } catch (error) {
-      console.error('Error processing input:', error);
-      await this.sendError(senderId, 'Error: Unexpected error occurred while processing the input.');
+      imageData = JSON.parse(fs.readFileSync(imageFilePath, 'utf8')) || {};
+    } catch (err) {
+      console.error('Erreur lecture image.json :', err);
     }
-  },
 
-  parseInput(args) {
-    return Array.isArray(args) && args.length > 0 ? args.join(' ').trim() : null;
-  },
+    const imageUrl = imageData[senderId];
 
-  async fetchGPT4OResponse(input) {
-    const apiUrl = `https://kaiz-apis.gleeze.com/api/gpt-4o?ask=${encodeURIComponent(prompt)}&uid=${senderId}&webSearch=On`;
-    const { data } = await axios.get(apiUrl);
-    return data;
-  },
+    if (imageUrl && prompt) {
+      // Prompt avec image
+      try {
+        const base64Image = await getBase64FromUrl(imageUrl);
+        const payload = {
+          contents: [{
+            parts: [
+              { text: prompt },
+              {
+                inlineData: {
+                  mimeType: 'image/png', // tu peux détecter le vrai type si besoin
+                  data: base64Image
+                }
+              }
+            ]
+          }]
+        };
 
-  formatResponse(data) {
-    if (data.status) {
-      return `🗨️ | 𝙶𝙿𝚃 [㊗️] \n・───────────・\n${data.response || 'No response provided.'}\n・──── >ᴗ< ────・`;
+        const response = await axios.post(GEMINI_API_URL, payload);
+        const result = response.data?.candidates?.[0]?.content?.parts?.[0]?.text || "Pas de réponse générée.";
+
+        await sendMessage(senderId, { text: result }, pageAccessToken);
+      } catch (err) {
+        console.error('Erreur avec prompt + image :', err.message);
+        await sendMessage(senderId, { text: "Erreur lors de l'analyse de l'image." }, pageAccessToken);
+      } finally {
+        delete imageData[senderId];
+        fs.writeFileSync(imageFilePath, JSON.stringify(imageData, null, 2), 'utf8');
+      }
+
+    } else if (prompt) {
+      // Prompt seul (texte)
+      try {
+        const payload = {
+          contents: [{
+            parts: [{ text: prompt }]
+          }]
+        };
+
+        const response = await axios.post(GEMINI_API_URL, payload);
+        const result = response.data?.candidates?.[0]?.content?.parts?.[0]?.text || "Pas de réponse générée.";
+
+        await sendMessage(senderId, { text: result }, pageAccessToken);
+      } catch (err) {
+        console.error('Erreur avec prompt seul :', err.message);
+        await sendMessage(senderId, { text: "Erreur lors de la génération de la réponse." }, pageAccessToken);
+      }
+
+    } else {
+      // Ni prompt ni image
+      await sendMessage(senderId, {
+        text: "Utilisation : Ai <votre question> ou envoyez une image d'abord, puis une question."
+      }, pageAccessToken);
     }
-    return 'Error: Unable to fetch response.';
-  },
-
-  async sendError(senderId, errorMessage) {
-    await sendMessage(senderId, { text: errorMessage }, token);
   }
 };
+
+// Convertir une image en base64 à partir d'une URL
+async function getBase64FromUrl(imageUrl) {
+  const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+  return Buffer.from(response.data).toString('base64');
+}
