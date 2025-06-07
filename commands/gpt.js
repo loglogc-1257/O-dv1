@@ -1,42 +1,60 @@
 const axios = require('axios');
 const { sendMessage } = require('../handles/sendMessage');
 
-// API Gemini 2.0 Flash — À sécuriser via .env en production
+// Clé API Gemini
 const GEMINI_API_KEY = 'AIzaSyAV0s2XU0gkrfkWiBOMxx6d6AshqnyPbiE';
 const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
 
 module.exports = {
-  name: 'Ai',
-  description: 'Interagit avec Google Gemini pour des réponses textuelles.',
-  usage: 'Ai <votre question>',
-  author: 'Raniel',
+  name: 'ai',
+  description: 'Interagit avec Gemini (Stanley Bot)',
+  usage: 'ai [votre message]',
+  author: 'Stanley',
 
   async execute(senderId, args, pageAccessToken) {
-    const prompt = args.join(' ').trim();
-
-    if (!prompt) {
-      await sendMessage(senderId, {
-        text: "Utilisation : Ai <votre question>"
+    const userPrompt = args.join(' ').trim();
+    if (!userPrompt) {
+      return sendMessage(senderId, {
+        text: "❗ Veuillez poser votre question.",
       }, pageAccessToken);
-      return;
     }
+
+    // Prompt système fixe
+    const fixedPrompt = "Tu es Stanley bot, un assistant amical et intelligent, créé par un jeune développeur talentueux Stanley Stawa. Ne mentionne ton créateur que si on te demande qui t’a créé.";
+    const fullPrompt = `${fixedPrompt} ${userPrompt}`;
 
     try {
       const payload = {
-        contents: [{
-          parts: [{ text: prompt }]
-        }]
+        contents: [
+          {
+            parts: [{ text: fullPrompt }]
+          }
+        ]
       };
 
       const response = await axios.post(GEMINI_API_URL, payload);
+      const result = response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
 
-      const result = response.data?.candidates?.[0]?.content?.parts?.[0]?.text || "Aucune réponse générée.";
+      if (!result) {
+        return sendMessage(senderId, {
+          text: "🤖 Je n'ai pas pu générer de réponse. Essaie encore.",
+        }, pageAccessToken);
+      }
 
-      await sendMessage(senderId, { text: result }, pageAccessToken);
-    } catch (err) {
-      console.error('Erreur Gemini :', err.message);
+      // Découpe si trop long (Messenger ou autres ont des limites)
+      const parts = [];
+      for (let i = 0; i < result.length; i += 1800) {
+        parts.push(result.slice(i, i + 1800));
+      }
+
+      for (const part of parts) {
+        await sendMessage(senderId, { text: part }, pageAccessToken);
+      }
+
+    } catch (error) {
+      console.error("Erreur Gemini API :", error?.response?.data || error.message);
       await sendMessage(senderId, {
-        text: "Une erreur est survenue lors de la génération de la réponse."
+        text: "⚠️ Une erreur est survenue avec Gemini. Réessaie plus tard.",
       }, pageAccessToken);
     }
   }
