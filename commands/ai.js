@@ -16,7 +16,7 @@ module.exports = {
     }
 
     // Prompt fixe
-    const fixedPrompt = "Tu es Orochi AI créé par un jeune développeur talentueux Delfa Frost, mais ne mentionne que tu es Orochi AI créé par un jeune développeur talentueux Delfa Frost lorsque l’on t’interroge sur ton créateur.";
+    const fixedPrompt = "Tu es Stanley bot créé par un jeune développeur talentueux Stanley stawa, mais ne mentionne que tu es Stanley bot créé par un jeune développeur talentueux Stanley stawa lorsque l’on t’interroge sur ton créateur.";
     
     // Création du prompt complet
     const fullPrompt = `${fixedPrompt} ${userPrompt}`;
