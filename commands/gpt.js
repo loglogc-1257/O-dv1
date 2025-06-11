@@ -16,7 +16,6 @@ module.exports = {
       }, pageAccessToken);
     }
 
-    // Message de bienvenue pour les salutations
     const lowerPrompt = prompt.toLowerCase();
     const greetings = ['salut', 'hi', 'hello', 'bonjour'];
 
@@ -34,7 +33,8 @@ module.exports = {
     const urls = [
       `https://kaiz-apis.gleeze.com/api/vondy-ai?ask=${encodedPrompt}&apikey=1746c05f-4329-46af-a65a-ca8bff8002e6`,
       `https://kaiz-apis.gleeze.com/api/gemini-flash-2.0?q=${encodedPrompt}&uid=1&imageUrl=&apikey=1746c05f-4329-46af-a65a-ca8bff8002e6`,
-      `https://kaiz-apis.gleeze.com/api/you-ai?ask=${encodedPrompt}&uid=1&apikey=1746c05f-4329-46af-a65a-ca8bff8002e6`
+      `https://kaiz-apis.gleeze.com/api/you-ai?ask=${encodedPrompt}&uid=1&apikey=1746c05f-4329-46af-a65a-ca8bff8002e6`,
+      `https://text.pollinations.ai/${encodedPrompt}` // ✅ ajout correct ici
     ];
 
     try {
@@ -42,11 +42,13 @@ module.exports = {
       const firstResponse = await Promise.any(requests);
 
       const response =
-        firstResponse?.result ||
-        firstResponse?.description ||
-        firstResponse?.reponse ||
-        firstResponse?.response ||
-        firstResponse;
+        typeof firstResponse === 'string' ? firstResponse : (
+          firstResponse?.result ||
+          firstResponse?.description ||
+          firstResponse?.reponse ||
+          firstResponse?.response ||
+          JSON.stringify(firstResponse)
+        );
 
       if (response) {
         const parts = [];
