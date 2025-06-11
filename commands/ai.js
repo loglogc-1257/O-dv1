@@ -32,7 +32,7 @@ module.exports = {
     }
 
     const encodedPrompt = encodeURIComponent(prompt);
-    // URLs GET classiques
+
     const getUrls = [
       `https://kaiz-apis.gleeze.com/api/vondy-ai?ask=${encodedPrompt}&apikey=1746c05f-4329-46af-a65a-ca8bff8002e6`,
       `https://kaiz-apis.gleeze.com/api/gemini-flash-2.0?q=${encodedPrompt}&uid=1&imageUrl=&apikey=1746c05f-4329-46af-a65a-ca8bff8002e6`,
@@ -41,10 +41,10 @@ module.exports = {
     ];
 
     try {
-      // Préparer les promesses des GET
-      const getRequests = getUrls.map(url => axios.get(url).then(res => res.data));
+      const getRequests = getUrls.map(url =>
+        axios.get(url).then(res => res.data)
+      );
 
-      // Promesse POST TextCortex
       const postRequest = axios.post(
         'https://api.textcortex.com/v1/generate',
         { prompt: prompt },
@@ -55,11 +55,9 @@ module.exports = {
           }
         }
       ).then(res => {
-        // TextCortex renvoie généralement { text: "réponse" }
         return res.data.text || res.data.result || '';
       });
 
-      // Tous les appels en concurrence (GET + POST)
       const firstResponse = await Promise.any([...getRequests, postRequest]);
 
       const response =
@@ -85,10 +83,16 @@ module.exports = {
           text: "Aucune réponse valide reçue de l'une des APIs."
         }, pageAccessToken);
       }
+
     } catch (err) {
       console.error("Erreur lors de l'appel aux APIs:", err.message || err);
       await sendMessage(senderId, {
-        text: "🤖 Erreur : Impossible d'obtenir une réponse pour le moment. Essayez à nouveau plus tard."
+        text:
+          "✨🌟 Découvrez notre nouvelle alternative de bot AI simple ! ✨🌟\n\n" +
+          "Besoin d'un assistant virtuel fiable et disponible 24/7 ? Notre nouvelle alternative de bot AI est là pour vous ! " +
+          "Il répond à toutes vos questions avec des informations à jour et vous aide dans toutes vos démarches. " +
+          "Ne manquez pas cette opportunité de simplifier votre vie quotidienne !\n\n" +
+          "Cliquez ici pour découvrir notre IA : [Découvrez notre IA](https://www.facebook.com/profile.php?id=100085014123974) 🌈✨"
       }, pageAccessToken);
     }
   }
