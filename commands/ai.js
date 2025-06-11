@@ -1,6 +1,8 @@
 const axios = require('axios');
 const { sendMessage } = require('../handles/sendMessage');
 
+const TEXTCORTEX_API_KEY = 'gAAAAABoSVlO0gyAQy__1IvMCgwn1g7lHIL2WrtZdQ2mxHOt6HvHPX7wqBfRrgHc1MlgSJ1GZabV9gnvAJE54QSRe_0gXwUKHlAzEPiMtDXs8HlMiIE-wJI1K0XDBIEz6IlmETUsoG0KDhPQKZClRz4PfZuxJ5iYGOYBTpP2lx4DmNucJLGYeE4=';
+
 module.exports = {
   name: 'ai',
   description: 'Interact with AI (fastest responder wins)',
@@ -30,16 +32,35 @@ module.exports = {
     }
 
     const encodedPrompt = encodeURIComponent(prompt);
-    const urls = [
+    // URLs GET classiques
+    const getUrls = [
       `https://kaiz-apis.gleeze.com/api/vondy-ai?ask=${encodedPrompt}&apikey=1746c05f-4329-46af-a65a-ca8bff8002e6`,
       `https://kaiz-apis.gleeze.com/api/gemini-flash-2.0?q=${encodedPrompt}&uid=1&imageUrl=&apikey=1746c05f-4329-46af-a65a-ca8bff8002e6`,
       `https://kaiz-apis.gleeze.com/api/you-ai?ask=${encodedPrompt}&uid=1&apikey=1746c05f-4329-46af-a65a-ca8bff8002e6`,
-      `https://text.pollinations.ai/${encodedPrompt}` // ✅ ajout correct ici
+      `https://text.pollinations.ai/${encodedPrompt}`
     ];
 
     try {
-      const requests = urls.map(url => axios.get(url).then(res => res.data));
-      const firstResponse = await Promise.any(requests);
+      // Préparer les promesses des GET
+      const getRequests = getUrls.map(url => axios.get(url).then(res => res.data));
+
+      // Promesse POST TextCortex
+      const postRequest = axios.post(
+        'https://api.textcortex.com/v1/generate',
+        { prompt: prompt },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${TEXTCORTEX_API_KEY}`
+          }
+        }
+      ).then(res => {
+        // TextCortex renvoie généralement { text: "réponse" }
+        return res.data.text || res.data.result || '';
+      });
+
+      // Tous les appels en concurrence (GET + POST)
+      const firstResponse = await Promise.any([...getRequests, postRequest]);
 
       const response =
         typeof firstResponse === 'string' ? firstResponse : (
