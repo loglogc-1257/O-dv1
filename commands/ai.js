@@ -8,7 +8,7 @@ module.exports = {
   author: 'coffee',
 
   async execute(senderId, args, pageAccessToken) {
-    const prompt = args.join(' ');
+    const prompt = args.join(' ').trim();
 
     if (!prompt) {
       return sendMessage(senderId, {
@@ -16,9 +16,21 @@ module.exports = {
       }, pageAccessToken);
     }
 
-    const encodedPrompt = encodeURIComponent(prompt);
+    // Message de bienvenue pour les salutations
+    const lowerPrompt = prompt.toLowerCase();
+    const greetings = ['salut', 'hi', 'hello', 'bonjour'];
 
-    // Liste des URLs à appeler en parallèle
+    if (greetings.includes(lowerPrompt)) {
+      return sendMessage(senderId, {
+        text:
+          "👋 Bonjour et bienvenue !\n\n" +
+          "Merci d'utiliser notre intelligence artificielle. 🙏\n\n" +
+          "✨ Pour nous aider, n'hésitez pas à partager cette IA dans vos groupes et à inviter vos amis à la découvrir.\n\n" +
+          "✅ Votre satisfaction est notre priorité absolue."
+      }, pageAccessToken);
+    }
+
+    const encodedPrompt = encodeURIComponent(prompt);
     const urls = [
       `https://kaiz-apis.gleeze.com/api/vondy-ai?ask=${encodedPrompt}&apikey=1746c05f-4329-46af-a65a-ca8bff8002e6`,
       `https://kaiz-apis.gleeze.com/api/gemini-flash-2.0?q=${encodedPrompt}&uid=1&imageUrl=&apikey=1746c05f-4329-46af-a65a-ca8bff8002e6`,
@@ -26,13 +38,9 @@ module.exports = {
     ];
 
     try {
-      // Création de promesses pour chaque appel API
       const requests = urls.map(url => axios.get(url).then(res => res.data));
-
-      // Prend la première qui répond
       const firstResponse = await Promise.any(requests);
 
-      // Extrait un champ pertinent
       const response =
         firstResponse?.result ||
         firstResponse?.description ||
