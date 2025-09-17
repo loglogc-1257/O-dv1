@@ -124,7 +124,7 @@ module.exports = {
           "Merci d'avoir utilisé notre IA ! 🙏\n\n" +
           "Nous rencontrons actuellement un problème technique. Nos développeurs travaillent sans relâche pour le résoudre le plus rapidement possible. 🛠️\n\n" +
           "En attendant, pour nous soutenir et rester informés des nouveautés, n'oubliez pas de vous **abonner à notre compte TikTok** et d'inviter vos amis à découvrir notre service !\n\n" +
-          "➡️ [Abonnez-vous ici !](https://www.tiktok.com/@ton_compte_tiktok) 🚀"
+          "➡️ [Abonnez-vous ici !](https://vm.tiktok.com/ZMHnCW9dJQLWL-l2vON/) 🚀"
       }, pageAccessToken);
     }
   }
