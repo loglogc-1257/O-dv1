@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const { sendMessage } = require('./sendMessage');
 
 const commands = new Map();
 const prefix = '-';
