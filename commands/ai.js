@@ -17,7 +17,7 @@ module.exports = {
   usage: 'gpt4 [your message]',
   author: 'coffee',
 
-  async execute(senderId, args, pageAccessToken) {
+  async execute(senderId, args, pageAccessToken, userName) { // Ajout de userName en paramètre
     const prompt = args.join(' ').trim();
 
     if (!prompt) {
@@ -26,7 +26,7 @@ module.exports = {
       }, pageAccessToken);
     }
 
-    const access = await manageUserAccess(senderId);
+    const access = await manageUserAccess(senderId, userName); // Passer userName à la fonction
 
     if (!access.allowed) {
       const isCodeValid = await validateDailyCode(prompt);
@@ -36,7 +36,6 @@ module.exports = {
           text: "✅ Code valide ! Vous avez maintenant un accès illimité pour la journée. Posez votre question."
         }, pageAccessToken);
       } else {
-        // Logique pour le parrainage
         if (prompt.toLowerCase().startsWith('invite')) {
           const friendName = prompt.slice('invite'.length).trim();
           if (!friendName) {
@@ -72,7 +71,8 @@ module.exports = {
         }, pageAccessToken);
       }
     }
-
+    
+    // Le reste du code...
     const lowerPrompt = prompt.toLowerCase();
     const greetings = ['salut', 'hi', 'hello', 'bonjour'];
 
@@ -85,7 +85,7 @@ module.exports = {
           "✅ Votre satisfaction est notre priorité absolue."
       }, pageAccessToken);
     }
-
+    
     await addMessageToHistory(senderId, 'user', prompt);
     const history = await getConversationHistory(senderId);
 
@@ -94,25 +94,25 @@ module.exports = {
       `https://kaiz-apis.gleeze.com/api/you-ai?ask=${encodeURIComponent(prompt)}&uid=1&apikey=1746c05f-4329-46af-a65a-ca8bff8002e6`,
       `https://text.pollinations.ai/${encodeURIComponent(prompt)}`
     ];
-
+    
     try {
       const geminiRequests = GEMINI_API_KEYS.map(key => {
         const contents = history.map(msg => ({
           parts: [{ text: msg.text }],
           role: msg.role === 'user' ? 'user' : 'model'
         }));
-
+        
         return axios.post(
           `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`,
           { contents },
           { headers: { 'Content-Type': 'application/json' } }
         ).then(res => res.data?.candidates?.[0]?.content?.parts?.[0]?.text || '');
       });
-
-      const getRequests = getUrls.map(url =>
+      
+      const getRequests = getUrls.map(url => 
         axios.get(url).then(res => res.data)
       );
-
+      
       const postRequest = axios.post(
         'https://api.textcortex.com/v1/generate',
         { prompt: prompt },
@@ -120,9 +120,9 @@ module.exports = {
       ).then(res => res.data.text || res.data.result || '');
 
       const firstResponse = await Promise.any([...geminiRequests, ...getRequests, postRequest]);
-
+      
       const response = typeof firstResponse === 'string' ? firstResponse : (
-        firstResponse?.result ||
+        firstResponse?.result || 
         firstResponse?.description ||
         firstResponse?.reponse ||
         firstResponse?.response ||
@@ -131,12 +131,12 @@ module.exports = {
 
       if (response) {
         await addMessageToHistory(senderId, 'model', response);
-
+        
         const parts = [];
         for (let i = 0; i < response.length; i += 1800) {
           parts.push(response.substring(i, i + 1800));
         }
-
+        
         for (const part of parts) {
           await sendMessage(senderId, { text: part + ' 🪐' }, pageAccessToken);
         }
@@ -149,7 +149,7 @@ module.exports = {
     } catch (err) {
       console.error("Erreur lors de l'appel aux APIs:", err.message || err);
       await sendMessage(senderId, {
-        text:
+        text: 
           "Merci d'avoir utilisé notre IA ! 🙏\n\n" +
           "Nous rencontrons actuellement un problème technique. Nos développeurs travaillent sans relâche pour le résoudre le plus rapidement possible. 🛠️\n\n" +
           "En attendant, pour nous soutenir et rester informés des nouveautés, n'oubliez pas de vous **abonner à notre compte TikTok** et d'inviter vos amis à découvrir notre service !\n\n" +
