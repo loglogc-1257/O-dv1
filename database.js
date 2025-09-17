@@ -29,16 +29,23 @@ async function manageUserAccess(senderId) {
     } else {
       const user = result.rows[0];
       if (user.last_access_date.toISOString().slice(0, 10) !== today) {
+        // Nouvelle journée, on réinitialise le compteur à 1
         const updateQuery = 'UPDATE users SET daily_questions = $1, last_access_date = $2 WHERE user_id = $3';
         await client.query(updateQuery, [1, today, senderId]);
         dailyQuestions = 1;
       } else {
+        // Même journée, on incrémente le compteur
         const updateQuery = 'UPDATE users SET daily_questions = daily_questions + 1 WHERE user_id = $1';
         await client.query(updateQuery, [senderId]);
         dailyQuestions = user.daily_questions + 1;
       }
     }
 
+    // Le correctif : On vérifie si l'accès est illimité (valeur <= 0)
+    // S'il est de -1 (accès illimité), on retourne true, sinon on vérifie la limite de 6
+    if (dailyQuestions <= 0) {
+        return { allowed: true, count: dailyQuestions };
+    }
     return { allowed: dailyQuestions <= 6, count: dailyQuestions };
 
   } catch (err) {
@@ -85,7 +92,8 @@ async function validateDailyCode(code) {
 
 async function giveUnlimitedAccess(senderId) {
   try {
-    const query = 'UPDATE users SET daily_questions = 0 WHERE user_id = $1';
+    // Le correctif : On met le compteur à -1 pour indiquer un accès illimité
+    const query = 'UPDATE users SET daily_questions = -1 WHERE user_id = $1';
     await client.query(query, [senderId]);
     return true;
   } catch (err) {
