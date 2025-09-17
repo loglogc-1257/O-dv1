@@ -4,7 +4,7 @@ const { sendMessage } = require('../handles/sendMessage');
 const TEXTCORTEX_API_KEY = 'gAAAAABoSVlO0gyAQy__1IvMCgwn1g7lHIL2WrtZdQ2mxHOt6HvHPX7wqBfRrgHc1MlgSJ1GZabV9gnvAJE54QSRe_0gXwUKHlAzEPiMtDXs8HlMiIE-wJI1K0XDBIEz6IlmETUsoG0KDhPQKZClRz4PfZuxJ5iYGOYBTpP2lx4DmNucJLGYeE4=';
 
 module.exports = {
-  name: 'ai',
+  name: 'gpt',
   description: 'Interact with AI (fastest responder wins)',
   usage: 'gpt4 [your message]',
   author: 'coffee',
