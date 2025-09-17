@@ -25,7 +25,6 @@ async function manageUserAccess(senderId, name) {
       const insertQuery = 'INSERT INTO users (user_id, name, daily_questions, last_access_date) VALUES ($1, $2, $3, $4)';
       await client.query(insertQuery, [senderId, name, 1, today]);
       dailyQuestions = 1;
-      await activateReferral(senderId);
     } else {
       const user = result.rows[0];
 
@@ -56,20 +55,27 @@ async function manageUserAccess(senderId, name) {
   }
 }
 
-async function findUserByName(name) {
+async function findUserById(userId) {
     try {
-        const query = 'SELECT user_id FROM users WHERE name ILIKE $1';
-        const result = await client.query(query, [`%${name}%`]);
-        return result.rows.length > 0 ? result.rows[0].user_id : null;
+        const query = 'SELECT user_id FROM users WHERE user_id = $1';
+        const result = await client.query(query, [userId]);
+        return result.rows.length > 0;
     } catch (err) {
-        console.error("Erreur lors de la recherche d'un utilisateur par nom:", err);
-        return null;
+        console.error("Erreur lors de la recherche d'un utilisateur par ID:", err);
+        return false;
     }
 }
 
 async function createReferral(referrerId, referredId) {
     try {
-        const query = 'INSERT INTO referrals (referrer_id, referred_id) VALUES ($1, $2) ON CONFLICT (referred_id) DO NOTHING';
+        const existingReferralQuery = 'SELECT * FROM referrals WHERE referred_id = $1';
+        const existingReferralResult = await client.query(existingReferralQuery, [referredId]);
+        
+        if (existingReferralResult.rows.length > 0) {
+            return false;
+        }
+
+        const query = 'INSERT INTO referrals (referrer_id, referred_id) VALUES ($1, $2)';
         await client.query(query, [referrerId, referredId]);
         return true;
     } catch (err) {
@@ -78,22 +84,6 @@ async function createReferral(referrerId, referredId) {
     }
 }
 
-async function activateReferral(referredId) {
-    try {
-        const referralQuery = 'SELECT referrer_id FROM referrals WHERE referred_id = $1 AND is_active = FALSE';
-        const result = await client.query(referralQuery, [referredId]);
-        if (result.rows.length > 0) {
-            const referrerId = result.rows[0].referrer_id;
-            const updateReferrerQuery = 'UPDATE users SET daily_questions = -1 WHERE user_id = $1';
-            await client.query(updateReferrerQuery, [referrerId]);
-            const updateReferralQuery = 'UPDATE referrals SET is_active = TRUE WHERE referred_id = $1';
-            await client.query(updateReferralQuery, [referredId]);
-            console.log(`Parrainage validé. Accès illimité donné à l'utilisateur ${referrerId}.`);
-        }
-    } catch (err) {
-        console.error("Erreur lors de l'activation du parrainage:", err);
-    }
-}
 
 async function getConversationHistory(senderId) {
   try {
@@ -147,6 +137,6 @@ module.exports = {
   addMessageToHistory,
   validateDailyCode,
   giveUnlimitedAccess,
-  findUserByName,
+  findUserById,
   createReferral
 };
