@@ -1,9 +1,8 @@
 const axios = require('axios');
 const { sendMessage } = require('../handles/sendMessage');
+const { manageUserAccess, getConversationHistory, addMessageToHistory, validateDailyCode, giveUnlimitedAccess, findUserById, createReferral, isUnlimitedAccess } = require('../database.js');
 
-const { manageUserAccess, getConversationHistory, addMessageToHistory, validateDailyCode, giveUnlimitedAccess, findUserById, createReferral } = require('../database.js');
-
-const TEXTCORTEX_API_KEY = 'gAAAAABoSVlO0gyAQy__1IvMCgwn1g7lHIL2WrtZd2mxHOt6HvHP7wqBfRrgHc1MlgSJ1GZabV9gnvAJE54QSRe_0gXwUKHlAzEPiMtDXs8HlMiIE-wJI1K0XDBIEz6IlmETUsoG0KDhPQKZClRz4PfZuxJ5iYGOYBTpP2lx4DmNucJLGYeE4=';
+const TEXTCORTEX_API_KEY = process.env.TEXTCORTEX_API_KEY;
 const GEMINI_API_KEYS = [
   'AIzaSyDIGG4puPZ6kPIUR0CSD6fOgh6PNWqYFuM',
   'AIzaSyCPCItkc_2hGwufiiTgz1dqvyLbBnmozMA',
@@ -11,7 +10,6 @@ const GEMINI_API_KEYS = [
   'AIzaSyAm7l8P9w0MIBZm_VloFg-_yEfIfDM2O_A'
 ];
 
-// FONCTION POUR ENVOYER UNE NOTIFICATION AU PARRAIN
 async function notifyReferrer(referrerId, referredName, pageAccessToken) {
   const message = {
     text: `🥳 Félicitations ! Votre ami ${referredName} a été ajouté et vous avez maintenant un accès illimité pour la journée.`
@@ -36,16 +34,12 @@ module.exports = {
     
     const lowerPrompt = prompt.toLowerCase();
     
-    // GESTION DES COMMANDES SPÉCIALES
-    
-    // Commande pour obtenir l'ID
     if (lowerPrompt === 'id') {
       return sendMessage(senderId, {
         text: `Voici votre ID unique : ${senderId}`
       }, pageAccessToken);
     }
     
-    // Commande de parrainage manuel ou pour obtenir le lien
     if (lowerPrompt.startsWith('parrainer') || lowerPrompt.startsWith('invite')) {
       const friendId = prompt.split(' ')[1];
       if (!friendId) {
@@ -60,7 +54,7 @@ module.exports = {
       if (friendExists) {
         const referralCreated = await createReferral(senderId, friendId);
         if (referralCreated) {
-          await giveUnlimitedAccess(senderId); // Le parrain gagne un accès illimité
+          await giveUnlimitedAccess(senderId);
           await notifyReferrer(senderId, "votre ami", pageAccessToken);
           return sendMessage(senderId, {
             text: `✅ Parfait ! Vous avez parrainé un ami et vous avez maintenant un accès illimité pour la journée.`
@@ -77,19 +71,17 @@ module.exports = {
       }
     }
     
-    // GESTION DU PARRAINAGE VIA LE LIEN AUTOMATIQUE
-    if (prompt === 'referral') {
-        const referrerId = prompt.split('_')[1];
-        if (referrerId && referrerId !== senderId) {
-            await giveUnlimitedAccess(senderId); // Le nouvel utilisateur gagne son accès illimité
-            await notifyReferrer(referrerId, userName, pageAccessToken);
-        }
-        return sendMessage(senderId, {
-            text: `🥳 Félicitations ! Vous avez été parrainé par un ami et vous avez maintenant un accès illimité pour la journée. Posez votre question.`
-        }, pageAccessToken);
+    if (lowerPrompt === 'referral') {
+      const referrerId = prompt.split('_')[1];
+      if (referrerId && referrerId !== senderId) {
+        await giveUnlimitedAccess(senderId);
+        await notifyReferrer(referrerId, userName, pageAccessToken);
+      }
+      return sendMessage(senderId, {
+        text: `🥳 Félicitations ! Vous avez été parrainé par un ami et vous avez maintenant un accès illimité pour la journée. Posez votre question.`
+      }, pageAccessToken);
     }
     
-    // Commande pour le code journalier
     const isCodeValid = await validateDailyCode(prompt);
     if (isCodeValid) {
         await giveUnlimitedAccess(senderId);
@@ -98,7 +90,6 @@ module.exports = {
         }, pageAccessToken);
     }
 
-    // GESTION DES SALUTATIONS
     const greetings = ['salut', 'hi', 'hello', 'bonjour'];
     if (greetings.includes(lowerPrompt)) {
       return sendMessage(senderId, {
@@ -110,18 +101,19 @@ module.exports = {
       }, pageAccessToken);
     }
 
-    // VÉRIFICATION DES POINTS POUR LES MESSAGES NORMAUX
-    const access = await manageUserAccess(senderId, userName);
-    if (!access.allowed) {
-      return sendMessage(senderId, {
-        text: "✨ Vos 6 questions gratuites sont terminées ! ✨\n\n" +
-              "Pour un accès illimité, veuillez entrer le code journalier que vous trouverez dans notre dernière vidéo TikTok.\n\n" +
-              "Lien de la dernière vidéo : " + "https://vm.tiktok.com/ZMHnCEyoJxE5H-tZJ7Y/" + "\n\n" +
-              "Ou, si vous préférez, vous pouvez parrainer un ami ! Tapez 'parrainer' pour obtenir votre lien de parrainage."
-      }, pageAccessToken);
+    const hasUnlimitedAccess = await isUnlimitedAccess(senderId);
+    if (!hasUnlimitedAccess) {
+      const access = await manageUserAccess(senderId, userName);
+      if (!access.allowed) {
+        return sendMessage(senderId, {
+          text: "✨ Vos 6 questions gratuites sont terminées ! ✨\n\n" +
+                "Pour un accès illimité, veuillez entrer le code journalier que vous trouverez dans notre dernière vidéo TikTok.\n\n" +
+                "Lien de la dernière vidéo : " + "https://vm.tiktok.com/ZMHnCEyoJxE5H-tZJ7Y/" + "\n\n" +
+                "Ou, si vous préférez, vous pouvez parrainer un ami ! Tapez 'parrainer' pour obtenir votre lien de parrainage."
+        }, pageAccessToken);
+      }
     }
 
-    // Le reste du code d'appel des APIs
     await addMessageToHistory(senderId, 'user', prompt);
     const history = await getConversationHistory(senderId);
 
