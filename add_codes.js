@@ -13,7 +13,6 @@ const codesToAdd = [
   { date: '2025-09-17', code: '876543' },
   { date: '2025-09-18', code: '998877' },
   { date: '2025-09-19', code: '111333' },
-  // ... ajoutez tous vos codes pour les 60 jours ici
 ];
 
 async function insertCodes() {
