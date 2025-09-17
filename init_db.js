@@ -14,6 +14,7 @@ async function createTables() {
     await client.connect();
     console.log('Connecté à la base de données PostgreSQL pour la création des tables.');
 
+    // Commande SQL pour la table 'users'
     const createUsersTableQuery = `
       CREATE TABLE IF NOT EXISTS users (
         user_id VARCHAR(255) PRIMARY KEY,
@@ -22,6 +23,7 @@ async function createTables() {
       );
     `;
 
+    // Commande SQL pour la table 'conversations'
     const createConversationsTableQuery = `
       CREATE TABLE IF NOT EXISTS conversations (
         id SERIAL PRIMARY KEY,
@@ -32,6 +34,7 @@ async function createTables() {
       );
     `;
 
+    // Commande SQL pour la table 'daily_codes'
     const createDailyCodesTableQuery = `
       CREATE TABLE IF NOT EXISTS daily_codes (
         date DATE PRIMARY KEY,
