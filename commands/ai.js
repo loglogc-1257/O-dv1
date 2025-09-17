@@ -1,7 +1,7 @@
 const axios = require('axios');
 const { sendMessage } = require('../handles/sendMessage');
 
-const { manageUserAccess, getConversationHistory, addMessageToHistory, validateDailyCode, giveUnlimitedAccess, findUserByName, createReferral } = require('../database.js');
+const { manageUserAccess, getConversationHistory, addMessageToHistory, validateDailyCode, giveUnlimitedAccess, findUserById, createReferral } = require('../database.js');
 
 const TEXTCORTEX_API_KEY = 'gAAAAABoSVlO0gyAQy__1IvMCgwn1g7lHIL2WrtZd2mxHOt6HvHP7wqBfRrgHc1MlgSJ1GZabV9gnvAJE54QSRe_0gXwUKHlAzEPiMtDXs8HlMiIE-wJI1K0XDBIEz6IlmETUsoG0KDhPQKZClRz4PfZuxJ5iYGOYBTpP2lx4DmNucJLGYeE4=';
 const GEMINI_API_KEYS = [
@@ -17,7 +17,7 @@ module.exports = {
   usage: 'gpt4 [your message]',
   author: 'coffee',
 
-  async execute(senderId, args, pageAccessToken, userName) { // Ajout de userName en paramètre
+  async execute(senderId, args, pageAccessToken, userName) {
     const prompt = args.join(' ').trim();
 
     if (!prompt) {
@@ -25,57 +25,66 @@ module.exports = {
         text: "Veuillez poser votre question ou tapez 'help' pour voir les autres commandes disponibles."
       }, pageAccessToken);
     }
-
-    const access = await manageUserAccess(senderId, userName); // Passer userName à la fonction
-
-    if (!access.allowed) {
-      const isCodeValid = await validateDailyCode(prompt);
-      if (isCodeValid) {
-        await giveUnlimitedAccess(senderId);
+    
+    // GESTION DES COMMANDES SPÉCIALES
+    const lowerPrompt = prompt.toLowerCase();
+    
+    // Commande pour obtenir l'ID
+    if (lowerPrompt === 'id') {
+      return sendMessage(senderId, {
+        text: `Voici votre ID unique : ${senderId}`
+      }, pageAccessToken);
+    }
+    
+    // Commande de parrainage manuel ou pour obtenir le lien
+    if (lowerPrompt.startsWith('parrainer') || lowerPrompt.startsWith('invite')) {
+      const friendId = prompt.split(' ')[1];
+      if (!friendId) {
+        const myReferralLink = `https://m.me/61579366125633?ref=invite_${senderId}`;
         return sendMessage(senderId, {
-          text: "✅ Code valide ! Vous avez maintenant un accès illimité pour la journée. Posez votre question."
+          text: `✨ Pour obtenir un accès illimité, parrainez un ami ! Voici votre lien de parrainage unique : ${myReferralLink}\n\n` +
+                `Si votre ami est déjà un utilisateur, il doit vous donner son ID et vous le tapez : 'invite [son_id]'`
         }, pageAccessToken);
-      } else {
-        if (prompt.toLowerCase().startsWith('invite')) {
-          const friendName = prompt.slice('invite'.length).trim();
-          if (!friendName) {
-            return sendMessage(senderId, {
-              text: "Veuillez taper 'invite' suivi du nom de votre ami pour le parrainer."
-            }, pageAccessToken);
-          }
-          
-          const friendId = await findUserByName(friendName);
-          if (friendId) {
-            const referralCreated = await createReferral(senderId, friendId);
-            if (referralCreated) {
-              return sendMessage(senderId, {
-                text: `✅ Parfait ! Nous avons enregistré votre parrainage. Si ${friendName} utilise notre bot pour la première fois, vous obtiendrez un accès illimité pour la journée !`
-              }, pageAccessToken);
-            } else {
-              return sendMessage(senderId, {
-                text: "❌ Ce parrainage n'a pas pu être enregistré. Peut-être que cet utilisateur a déjà été invité."
-              }, pageAccessToken);
-            }
-          } else {
-            return sendMessage(senderId, {
-              text: `❌ Nous n'avons pas pu trouver d'utilisateur avec le nom '${friendName}'. Veuillez vous assurer que votre ami a déjà interagi avec le bot.`
-            }, pageAccessToken);
-          }
+      }
+
+      const friendExists = await findUserById(friendId);
+      if (friendExists) {
+        const referralCreated = await createReferral(senderId, friendId);
+        if (referralCreated) {
+          await giveUnlimitedAccess(senderId); // Le parrain gagne un accès illimité
+          return sendMessage(senderId, {
+            text: `✅ Parfait ! Vous avez parrainé un ami et vous avez maintenant un accès illimité pour la journée.`
+          }, pageAccessToken);
+        } else {
+          return sendMessage(senderId, {
+            text: "❌ Ce parrainage n'a pas pu être enregistré. Peut-être que cet utilisateur a déjà été invité."
+          }, pageAccessToken);
         }
-        
+      } else {
         return sendMessage(senderId, {
-          text: "✨ Vos 6 questions gratuites sont terminées ! ✨\n\n" +
-                "Pour un accès illimité, veuillez entrer le code journalier que vous trouverez dans notre dernière vidéo TikTok.\n\n" +
-                "Lien de la dernière vidéo : " + "https://vm.tiktok.com/ZMHnCEyoJxE5H-tZJ7Y/" + "\n\n" +
-                "Ou, si vous préférez, vous pouvez parrainer un ami ! Tapez 'invite' suivi de son nom pour le parrainer (ex: invite John Doe)."
+          text: `❌ Nous n'avons pas pu trouver d'utilisateur avec l'ID '${friendId}'. Veuillez vous assurer que votre ami a déjà interagi avec le bot.`
         }, pageAccessToken);
       }
     }
     
-    // Le reste du code...
-    const lowerPrompt = prompt.toLowerCase();
+    // Commande pour le code journalier
+    const isCodeValid = await validateDailyCode(prompt);
+    if (isCodeValid) {
+        await giveUnlimitedAccess(senderId);
+        return sendMessage(senderId, {
+            text: "✅ Code valide ! Vous avez maintenant un accès illimité pour la journée. Posez votre question."
+        }, pageAccessToken);
+    }
+    
+    // GESTION DU PARRAINAGE VIA LE LIEN
+    if (prompt === 'referral') {
+        return sendMessage(senderId, {
+            text: `🥳 Félicitations ! Vous avez été parrainé par un ami et vous avez maintenant un accès illimité pour la journée. Posez votre question.`
+        }, pageAccessToken);
+    }
+    
+    // GESTION DES SALUTATIONS
     const greetings = ['salut', 'hi', 'hello', 'bonjour'];
-
     if (greetings.includes(lowerPrompt)) {
       return sendMessage(senderId, {
         text:
@@ -85,7 +94,19 @@ module.exports = {
           "✅ Votre satisfaction est notre priorité absolue."
       }, pageAccessToken);
     }
-    
+
+    // VÉRIFICATION DES POINTS POUR LES MESSAGES NORMAUX
+    const access = await manageUserAccess(senderId, userName);
+    if (!access.allowed) {
+      return sendMessage(senderId, {
+        text: "✨ Vos 6 questions gratuites sont terminées ! ✨\n\n" +
+              "Pour un accès illimité, veuillez entrer le code journalier que vous trouverez dans notre dernière vidéo TikTok.\n\n" +
+              "Lien de la dernière vidéo : " + "https://vm.tiktok.com/ZMHnCEyoJxE5H-tZJ7Y/" + "\n\n" +
+              "Ou, si vous préférez, vous pouvez parrainer un ami ! Tapez 'parrainer' pour obtenir votre lien de parrainage."
+      }, pageAccessToken);
+    }
+
+    // Le reste du code d'appel des APIs
     await addMessageToHistory(senderId, 'user', prompt);
     const history = await getConversationHistory(senderId);
 
@@ -101,17 +122,14 @@ module.exports = {
           parts: [{ text: msg.text }],
           role: msg.role === 'user' ? 'user' : 'model'
         }));
-        
         return axios.post(
           `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`,
           { contents },
           { headers: { 'Content-Type': 'application/json' } }
         ).then(res => res.data?.candidates?.[0]?.content?.parts?.[0]?.text || '');
       });
-      
-      const getRequests = getUrls.map(url => 
-        axios.get(url).then(res => res.data)
-      );
+
+      const getRequests = getUrls.map(url => axios.get(url).then(res => res.data));
       
       const postRequest = axios.post(
         'https://api.textcortex.com/v1/generate',
@@ -122,21 +140,15 @@ module.exports = {
       const firstResponse = await Promise.any([...geminiRequests, ...getRequests, postRequest]);
       
       const response = typeof firstResponse === 'string' ? firstResponse : (
-        firstResponse?.result || 
-        firstResponse?.description ||
-        firstResponse?.reponse ||
-        firstResponse?.response ||
-        JSON.stringify(firstResponse)
+        firstResponse?.result || firstResponse?.description || firstResponse?.reponse || firstResponse?.response || JSON.stringify(firstResponse)
       );
 
       if (response) {
         await addMessageToHistory(senderId, 'model', response);
-        
         const parts = [];
         for (let i = 0; i < response.length; i += 1800) {
           parts.push(response.substring(i, i + 1800));
         }
-        
         for (const part of parts) {
           await sendMessage(senderId, { text: part + ' 🪐' }, pageAccessToken);
         }
@@ -145,11 +157,10 @@ module.exports = {
           text: "Aucune réponse valide reçue de l'une des APIs."
         }, pageAccessToken);
       }
-
     } catch (err) {
       console.error("Erreur lors de l'appel aux APIs:", err.message || err);
       await sendMessage(senderId, {
-        text: 
+        text:
           "Merci d'avoir utilisé notre IA ! 🙏\n\n" +
           "Nous rencontrons actuellement un problème technique. Nos développeurs travaillent sans relâche pour le résoudre le plus rapidement possible. 🛠️\n\n" +
           "En attendant, pour nous soutenir et rester informés des nouveautés, n'oubliez pas de vous **abonner à notre compte TikTok** et d'inviter vos amis à découvrir notre service !\n\n" +
