@@ -1,7 +1,7 @@
 const { sendSenderAction } = require('../handles/sendMessage');
 
 module.exports = {
-  name: 'react',
+  name: 'seen',
   description: 'Mark the message as seen',
   usage: 'markAsSeen',
   author: 'coffee',
