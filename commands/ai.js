@@ -3,7 +3,7 @@ const { sendMessage } = require('../handles/sendMessage');
 
 const { manageUserAccess, getConversationHistory, addMessageToHistory, validateDailyCode, giveUnlimitedAccess } = require('../database.js');
 
-const TEXTCORTEX_API_KEY = 'gAAAAABoSVlO0gyAQy__1IvMCgwn1g7lHIL2WrtZdQ2mxHOt6HvHP7wqBfRrgHc1MlgSJ1GZabV9gnvAJE54QSRe_0gXwUKHlAzEPiMtDXs8HlMiIE-wJI1K0XDBIEz6IlmETUsoG0KDhPQKZClRz4PfZuxJ5iYGOYBTpP2lx4DmNucJLGYeE4=';
+const TEXTCORTEX_API_KEY = 'gAAAAABoSVlO0gyAQy__1IvMCgwn1g7lHIL2WrtZd2mxHOt6HvHP7wqBfRrgHc1MlgSJ1GZabV9gnvAJE54QSRe_0gXwUKHlAzEPiMtDXs8HlMiIE-wJI1K0XDBIEz6IlmETUsoG0KDhPQKZClRz4PfZuxJ5iYGOYBTpP2lx4DmNucJLGYeE4=';
 const GEMINI_API_KEYS = [
   'AIzaSyDIGG4puPZ6kPIUR0CSD6fOgh6PNWqYFuM',
   'AIzaSyCPCItkc_2hGwufiiTgz1dqvyLbBnmozMA',
@@ -38,8 +38,8 @@ module.exports = {
       } else {
         return sendMessage(senderId, {
           text: "✨ Vos 6 questions gratuites sont terminées ! ✨\n\n" +
-                "Pour un accès illimité, veuillez entrer le code journalier que vous trouverez sur nos vidéos TikTok."
-         " https://vm.tiktok.com/ZMHnCWhcH85Cu-mv3f5/  "
+                "Pour un accès illimité, veuillez entrer le code journalier que vous trouverez dans notre dernière vidéo TikTok.\n\n" +
+                "Lien de la dernière vidéo : " + "https://vm.tiktok.com/ZMHnCEyoJxE5H-tZJ7Y/"
         }, pageAccessToken);
       }
     }
@@ -124,7 +124,7 @@ module.exports = {
           "Merci d'avoir utilisé notre IA ! 🙏\n\n" +
           "Nous rencontrons actuellement un problème technique. Nos développeurs travaillent sans relâche pour le résoudre le plus rapidement possible. 🛠️\n\n" +
           "En attendant, pour nous soutenir et rester informés des nouveautés, n'oubliez pas de vous **abonner à notre compte TikTok** et d'inviter vos amis à découvrir notre service !\n\n" +
-          "➡️ [Abonnez-vous ici !](https://vm.tiktok.com/ZMHnCW9dJQLWL-l2vON/) 🚀"
+          "➡️ [Abonnez-vous ici !](https://vm.tiktok.com/ZMHnCEyoJxE5H-tZJ7Y/) 🚀"
       }, pageAccessToken);
     }
   }
