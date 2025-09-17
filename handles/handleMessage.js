@@ -10,7 +10,11 @@ fs.readdirSync(path.join(__dirname, '../commands'))
   .filter(file => file.endsWith('.js'))
   .forEach(file => {
     const command = require(`../commands/${file}`);
-    commands.set(command.name.toLowerCase(), command);
+    if (command.name) { // Ajout d'une vérification ici
+      commands.set(command.name.toLowerCase(), command);
+    } else {
+      console.error(`Error: Command file ${file} is missing a 'name' property.`);
+    }
   });
 
 async function handleMessage(event, pageAccessToken) {
