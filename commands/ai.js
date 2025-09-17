@@ -38,7 +38,8 @@ module.exports = {
       } else {
         return sendMessage(senderId, {
           text: "✨ Vos 6 questions gratuites sont terminées ! ✨\n\n" +
-                "Pour un accès illimité, veuillez entrer le code journalier que vous trouverez sur nos vidéos TikTok."
+                "Pour un accès illimité, veuillez entrer le code journalier que vous trouverez sur nos vidéos TikTok.
+          https://vm.tiktok.com/ZMHnCWhcH85Cu-mv3f5/  "
         }, pageAccessToken);
       }
     }
