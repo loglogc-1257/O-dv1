@@ -1,7 +1,7 @@
 const axios = require('axios');
 const { sendMessage } = require('../handles/sendMessage');
 
-const { manageUserAccess, getConversationHistory, addMessageToHistory, validateDailyCode, giveUnlimitedAccess } = require('../database.js');
+const { manageUserAccess, getConversationHistory, addMessageToHistory, validateDailyCode, giveUnlimitedAccess, findUserByName, createReferral } = require('../database.js');
 
 const TEXTCORTEX_API_KEY = 'gAAAAABoSVlO0gyAQy__1IvMCgwn1g7lHIL2WrtZd2mxHOt6HvHP7wqBfRrgHc1MlgSJ1GZabV9gnvAJE54QSRe_0gXwUKHlAzEPiMtDXs8HlMiIE-wJI1K0XDBIEz6IlmETUsoG0KDhPQKZClRz4PfZuxJ5iYGOYBTpP2lx4DmNucJLGYeE4=';
 const GEMINI_API_KEYS = [
@@ -36,10 +36,39 @@ module.exports = {
           text: "✅ Code valide ! Vous avez maintenant un accès illimité pour la journée. Posez votre question."
         }, pageAccessToken);
       } else {
+        // Logique pour le parrainage
+        if (prompt.toLowerCase().startsWith('invite')) {
+          const friendName = prompt.slice('invite'.length).trim();
+          if (!friendName) {
+            return sendMessage(senderId, {
+              text: "Veuillez taper 'invite' suivi du nom de votre ami pour le parrainer."
+            }, pageAccessToken);
+          }
+          
+          const friendId = await findUserByName(friendName);
+          if (friendId) {
+            const referralCreated = await createReferral(senderId, friendId);
+            if (referralCreated) {
+              return sendMessage(senderId, {
+                text: `✅ Parfait ! Nous avons enregistré votre parrainage. Si ${friendName} utilise notre bot pour la première fois, vous obtiendrez un accès illimité pour la journée !`
+              }, pageAccessToken);
+            } else {
+              return sendMessage(senderId, {
+                text: "❌ Ce parrainage n'a pas pu être enregistré. Peut-être que cet utilisateur a déjà été invité."
+              }, pageAccessToken);
+            }
+          } else {
+            return sendMessage(senderId, {
+              text: `❌ Nous n'avons pas pu trouver d'utilisateur avec le nom '${friendName}'. Veuillez vous assurer que votre ami a déjà interagi avec le bot.`
+            }, pageAccessToken);
+          }
+        }
+        
         return sendMessage(senderId, {
           text: "✨ Vos 6 questions gratuites sont terminées ! ✨\n\n" +
                 "Pour un accès illimité, veuillez entrer le code journalier que vous trouverez dans notre dernière vidéo TikTok.\n\n" +
-                "Lien de la dernière vidéo : " + "https://vm.tiktok.com/ZMHnCEyoJxE5H-tZJ7Y/"
+                "Lien de la dernière vidéo : " + "https://vm.tiktok.com/ZMHnCEyoJxE5H-tZJ7Y/" + "\n\n" +
+                "Ou, si vous préférez, vous pouvez parrainer un ami ! Tapez 'invite' suivi de son nom pour le parrainer (ex: invite John Doe)."
         }, pageAccessToken);
       }
     }
