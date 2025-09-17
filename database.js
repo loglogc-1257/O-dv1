@@ -21,37 +21,41 @@ async function manageUserAccess(senderId, name) {
     let dailyQuestions;
 
     if (result.rows.length === 0) {
-      // Cas d'un nouvel utilisateur
       const insertQuery = 'INSERT INTO users (user_id, name, daily_questions, last_access_date) VALUES ($1, $2, $3, $4)';
       await client.query(insertQuery, [senderId, name, 1, today]);
       dailyQuestions = 1;
     } else {
       const user = result.rows[0];
 
-      // Vérifier si l'utilisateur a un accès illimité AVANT de faire quoi que ce soit
-      if (user.daily_questions === -1) {
-        return { allowed: true, count: -1 };
-      }
-
-      const updateQuery = 'UPDATE users SET name = $1, last_access_date = $2, daily_questions = $3 WHERE user_id = $4';
-
       if (user.last_access_date.toISOString().slice(0, 10) !== today) {
-        // Nouvelle journée, on réinitialise le compteur
+        const updateQuery = 'UPDATE users SET name = $1, last_access_date = $2, daily_questions = $3 WHERE user_id = $4';
         await client.query(updateQuery, [name, today, 1, senderId]);
         dailyQuestions = 1;
       } else {
-        // Même journée, on incrémente le compteur
+        const updateQuery = 'UPDATE users SET name = $1, daily_questions = $2 WHERE user_id = $3';
         const newDailyQuestions = user.daily_questions + 1;
-        await client.query(updateQuery, [name, today, newDailyQuestions, senderId]);
+        await client.query(updateQuery, [name, newDailyQuestions, senderId]);
         dailyQuestions = newDailyQuestions;
       }
     }
-
-    // Le reste de la logique reste la même
     return { allowed: dailyQuestions <= 6, count: dailyQuestions };
   } catch (err) {
     console.error('Erreur lors de la gestion de l\'accès utilisateur:', err);
     return { allowed: false, count: -1 };
+  }
+}
+
+async function isUnlimitedAccess(senderId) {
+  try {
+    const query = 'SELECT daily_questions FROM users WHERE user_id = $1';
+    const result = await client.query(query, [senderId]);
+    if (result.rows.length > 0 && result.rows[0].daily_questions === -1) {
+      return true;
+    }
+    return false;
+  } catch (err) {
+    console.error("Erreur lors de la vérification de l'accès illimité:", err);
+    return false;
   }
 }
 
@@ -83,7 +87,6 @@ async function createReferral(referrerId, referredId) {
         return false;
     }
 }
-
 
 async function getConversationHistory(senderId) {
   try {
@@ -138,5 +141,6 @@ module.exports = {
   validateDailyCode,
   giveUnlimitedAccess,
   findUserById,
-  createReferral
+  createReferral,
+  isUnlimitedAccess
 };
